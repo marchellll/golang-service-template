@@ -5,6 +5,7 @@ A template to clone when building new service in Go
 ## To run in local
 
 ```bash
+cp env.example .env
 go run main.go
 ```
 ## To build and run in local
@@ -25,7 +26,7 @@ https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-yea
 
 
 ## TODO
-- env read
+
 - logging
 - docker
 
