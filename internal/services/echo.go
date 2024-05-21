@@ -1,17 +1,16 @@
 package services
 
-type EchoService interface {
-	Echo(str string) string
+type HealthService interface {
+	Healthcheck(str string) string
 }
 
-
-type echoService struct {
+type healthService struct {
 }
 
-func NewEchoService() EchoService {
-	return &echoService{}
+func NewHealthService() HealthService {
+	return &healthService{}
 }
 
-func (*echoService) Echo(str string) string {
+func (*healthService) Healthcheck(str string) string {
 	return str + " from service"
 }

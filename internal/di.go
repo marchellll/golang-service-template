@@ -12,10 +12,10 @@ type Container struct {
 	Config Config
 
 	// services
-	EchoService services.EchoService
+	HealthService services.HealthService
 
 	// controllers
-	EchoController controllers.EchoController
+	HealthController controllers.HealthzController
 }
 
 // NewDI is a constructor for DI
@@ -26,18 +26,18 @@ func NewContainer() Container {
 	config := NewConfig()
 
 	// services
-	echoService := services.NewEchoService()
+	healthService := services.NewHealthService()
 
 	// controllers
-	echoController := controllers.NewEchoController(echoService)
+	healthController := controllers.NewHealthzController(healthService)
 
 	return Container{
 		Config: config,
 
 		// services
-		EchoService: echoService,
+		HealthService: healthService,
 
 		// controllers
-		EchoController: echoController,
+		HealthController: healthController,
 	}
 }

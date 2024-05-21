@@ -6,27 +6,25 @@ import (
 )
 
 // interface
-type EchoController interface {
-	Echo() (http.Handler)
+type HealthzController interface {
+	Healthz() http.Handler
 }
-
 
 // the struct that implements the interface
 // and its dependencies
-type echoController struct {
-	echoService services.EchoService
+type healthzController struct {
+	healthService services.HealthService
 }
 
 // New method
-func NewEchoController(echoService services.EchoService) EchoController {
-	return &echoController{
-		echoService: echoService,
+func NewHealthzController(healthService services.HealthService) HealthzController {
+	return &healthzController{
+		healthService: healthService,
 	}
 }
 
-
-// Echo method
-func (ec *echoController) Echo() (http.Handler) {
+// Healthz method
+func (c *healthzController) Healthz() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		type req struct {
 			Message string `json:"message"`
@@ -42,11 +40,11 @@ func (ec *echoController) Echo() (http.Handler) {
 			return
 		}
 
-		toEcho := string(body.Message)
-		toEcho = ec.echoService.Echo(toEcho)
+		requestBody := string(body.Message)
+		response := c.healthService.Healthcheck(requestBody)
 
 		resp := req{
-			Message: toEcho,
+			Message: response,
 		}
 
 		encode(w, r, http.StatusOK, resp)

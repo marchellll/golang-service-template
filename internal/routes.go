@@ -8,6 +8,5 @@ import (
 func regiterRoutes(mux *http.ServeMux, di Container) {
 	// handle all routes here
 
-
-	mux.Handle("/echo", middlewares.AdminOnly(di.EchoController.Echo()))
+	mux.Handle("/healthz", middlewares.AdminOnly(di.HealthController.Healthz()))
 }
