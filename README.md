@@ -22,3 +22,22 @@ TODO: add github-action
 ## Ref
 
 https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/
+
+
+## TODO
+- env read
+- logging
+- docker
+
+- playwright
+- ut
+
+- terraform
+
+- websocket
+- grpc
+
+
+- tracing
+- metrics
+- cron on kube

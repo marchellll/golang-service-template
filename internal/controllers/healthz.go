@@ -3,11 +3,13 @@ package controllers
 import (
 	"golang-service-template/internal/services"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 // interface
 type HealthzController interface {
-	Healthz() http.Handler
+	Healthz() echo.HandlerFunc
 }
 
 // the struct that implements the interface
@@ -24,29 +26,28 @@ func NewHealthzController(healthService services.HealthService) HealthzControlle
 }
 
 // Healthz method
-func (c *healthzController) Healthz() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func (controller *healthzController) Healthz() echo.HandlerFunc {
+	return func(c echo.Context) error {
 		type req struct {
 			Message string `json:"message"`
 		}
 
-		var body req
+		body := new(req)
 
-		body, err := decode[req](r)
-		// TODO: validate the request
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		if err := c.Bind(body); err != nil {
+      return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+    }
 
 		requestBody := string(body.Message)
-		response := c.healthService.Healthcheck(requestBody)
+		response := controller.healthService.Healthcheck(requestBody)
 
 		resp := req{
 			Message: response,
 		}
 
-		encode(w, r, http.StatusOK, resp)
-	})
+		c.JSON(http.StatusOK, resp)
+
+		return nil
+
+	}
 }

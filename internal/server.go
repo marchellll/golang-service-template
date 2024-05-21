@@ -1,15 +1,20 @@
 package internal
 
-import "net/http"
+import (
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v4"
+)
 
-func NewServer(di Container) http.Handler {
-	mux := http.NewServeMux()
+func NewServer(di Container) *echo.Echo {
+	e := echo.New()
 
-	regiterRoutes(mux, di)
+  e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
+	e.Use(middleware.Logger())
 
-	var handler http.Handler = mux
-	// TODO: add global middleware here
-	// handler = middleware1(handler)
+	// healthz
+	e.GET("/healthz", di.HealthController.Healthz())
+	e.POST("/healthz", di.HealthController.Healthz())
 
-	return handler
+	return e
 }

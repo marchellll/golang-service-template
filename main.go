@@ -5,11 +5,7 @@ import (
 	"fmt"
 	"golang-service-template/internal"
 	"io"
-	"log"
-	"net"
-	"net/http"
 	"os"
-	"os/signal"
 )
 
 func run(
@@ -18,23 +14,12 @@ func run(
 	stdin  io.Reader,
 	stdout, stderr io.Writer,
 ) error {
-	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
-	defer cancel()
-
 	container := internal.NewContainer()
 	srv := internal.NewServer(container)
-	httpServer := &http.Server{
-		Addr:    net.JoinHostPort(container.Config.Host, container.Config.Port),
-		Handler: srv,
-	}
-	go func() {
-		log.Printf("listening on %s\n", httpServer.Addr)
-		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Fprintf(os.Stderr, "error listening and serving: %s\n", err)
-		}
-	}()
 
-	return nil
+	err := srv.Start(":1323")
+
+	return err
 }
 
 func main() {
