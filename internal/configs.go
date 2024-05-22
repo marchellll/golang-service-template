@@ -2,8 +2,9 @@ package internal
 
 import (
 	"log"
+	"os"
 
-	"github.com/spf13/viper"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type Config struct {
@@ -12,16 +13,9 @@ type Config struct {
 }
 
 func NewConfig() Config {
-	viper.SetConfigFile(".env")
-
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal("Error reading env file", err)
-	}
-
-	var config Config
-
-	if err := viper.Unmarshal(&config); err != nil {
-		log.Fatal(err)
+	config := Config{
+		Host: os.Getenv("HOST"),
+		Port: os.Getenv("PORT"),
 	}
 
 	log.Printf("config: %+v", config)

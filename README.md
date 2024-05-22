@@ -15,6 +15,12 @@ go build -o ./dist/run
 ./dist/run
 ```
 
+## To run in docker
+
+```
+docker run -p 8080:8080 -e PORT=8080 --rm -it $(docker build -q .)
+```
+
 
 TODO: add docker file
 TODO: add github-action
@@ -27,8 +33,11 @@ https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-yea
 
 ## TODO
 
-- logging
 - docker
+- redis
+- postgres
+- logging
+
 
 - playwright
 - ut
