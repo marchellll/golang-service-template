@@ -3,15 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"golang-service-template/internal"
+	"golang-service-template/internal/app"
 	"os"
 )
 
 func run(
 	ctx    context.Context,
 ) error {
-	container := internal.NewContainer()
-	srv := internal.NewServer(container)
+	container := app.NewContainer()
+	defer container.Logger.Sync()
+
+	srv := app.NewServer(container)
 
 	err := srv.Start(":"+container.Config.Port)
 

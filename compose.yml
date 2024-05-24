@@ -1,58 +1,45 @@
 services:
   the-service:
     build:
+
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    environment:
-      - PORT=8080
+    env_file:
+      - .env
     # volumes:
     #   - .:/app
+    # network_mode: "host"
+
     depends_on:
       - redis
-      - postgres
+      - mysql
       # - kafka
 
   redis:
     image: "redis:alpine"
-
-    # # open this port to access from outside
-    # ports:
-    #   - "6379:6379"
-    # mysql:
-    #   platform: linux/x86_64
-    #   image: mysql:5.7
-    #   environment:
-    #     MYSQL_DATABASE: 'db'
-    #     # So you don't have to use root, but you can if you like
-    #     MYSQL_USER: 'theuser'
-    #     # You can use whatever password you like
-    #     MYSQL_PASSWORD: 'password'
-    #     # Password for root access
-    #     MYSQL_ROOT_PASSWORD: 'password'
-    #   ports:
-    #   # # open this port to access from outside
-    #     - '3306:3306'
-    #   expose:
-    #   # # open this port to access from outside
-    #     - '3306'
-    #     # Where our data will be persisted
-    #   volumes:
-    #     - my-db:/var/lib/mysql
-
-  postgres:
-    image: postgres
-    restart: always
-    volumes:
-      - ./postgres-data:/var/lib/postgresql
-    # open this port to access from outside
     ports:
-      - "5432:5432"
+      - "6379:6379"
+
+  mysql:
+    image: docker.io/bitnami/mysql:8.4
+    ports:
+      - '3306:3306'
+    volumes:
+      - './mysql_data:/bitnami/mariadb'
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: data
+      - ALLOW_EMPTY_PASSWORD=no
+      - MYSQL_ROOT_PASSWORD=the_root_password
+      - MYSQL_USER=the_service_user
+      - MYSQL_PASSWORD=the_service_password
+      - MYSQL_DATABASE=the_service_database
+
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 6
 
   # kafka:
   #   image: docker.io/bitnami/kafka:3.5

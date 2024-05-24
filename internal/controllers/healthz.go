@@ -38,11 +38,17 @@ func (controller *healthzController) Healthz() echo.HandlerFunc {
       return echo.NewHTTPError(http.StatusBadRequest, err.Error())
     }
 
+		err := controller.healthService.Healthcheck(c.Request().Context())
+
 		requestBody := string(body.Message)
-		response := controller.healthService.Healthcheck(requestBody)
+		message := "I am healthty 🫡. This is your echo: " + requestBody + "."
+
+		if err != nil {
+			message = err.Error()
+		}
 
 		resp := req{
-			Message: response,
+			Message: message,
 		}
 
 		c.JSON(http.StatusOK, resp)
