@@ -25,6 +25,12 @@ docker run -v ./migrations:/migrations --network="host" migrate/migrate -path=/m
 ```
 
 
+After that we use GORMS's GEN to generate the models and fluent query from the database. https://gorm.io/gen/gen_tool.html
+
+```sh
+gentool -dsn "the_service_user:the_service_password@tcp(127.0.0.1:3306)/the_service_database" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -withUnitTest -fieldSignable -db mysql
+```
+
 ## To run in local
 
 ```bash
@@ -61,9 +67,9 @@ https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-yea
 
 - db migration✅
 
-- redis
-- mysql: https://xata.io/pricing
-- logging
+- redis ✅
+- mysql: https://xata.io/pricing ✅
+- logging ✅
 
 
 - playwright

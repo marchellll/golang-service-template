@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"golang-service-template/internal/dao/query"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -53,6 +54,9 @@ func (service *healthService) Healthcheck(ctx context.Context) (error) {
 	}
 
 	service.redis.SetEx(ctx, "healthcheck", "OK", time.Second * 30)
+
+	q:=query.Use(service.db)
+	q.User.WithContext(ctx).Take()
 
 
 	return nil
