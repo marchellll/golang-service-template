@@ -23,5 +23,8 @@ go.work
 
 dist
 
-postgres-data
+postgres_data
 mysql_data
+
+# air
+tmp

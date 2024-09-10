@@ -1,16 +1,18 @@
 package app
 
 import (
-	"log"
+	"io"
+	"time"
 
-	"go.uber.org/zap"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/pkgerrors"
 )
 
-func NewLogger() *zap.Logger {
-	logger, err := zap.NewProduction()
-	if err != nil {
-		log.Fatalf("failed to create logger: %v", err)
-	}
+func NewLogger(stdout io.Writer) zerolog.Logger {
+	zerolog.TimeFieldFormat = time.RFC3339Nano
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+
+	logger := zerolog.New(stdout).With().Timestamp().Logger()
 
 	return logger
 }

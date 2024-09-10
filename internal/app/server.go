@@ -1,20 +1,34 @@
 package app
 
 import (
-	"github.com/labstack/echo/v4/middleware"
+	"context"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog"
+	"github.com/samber/do"
 )
 
-func NewServer(di Container) *echo.Echo {
+func RunNewServer(
+	injector *do.Injector,
+) func(ctx context.Context) error {
+	logger := do.MustInvoke[zerolog.Logger](injector)
+	config := do.MustInvoke[Config](injector)
+
 	e := echo.New()
 
-  e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
-	e.Use(middleware.Logger())
+  addRoutes(e, injector)
 
-	// healthz
-	e.GET("/healthz", di.HealthController.Healthz())
-	e.POST("/healthz", di.HealthController.Healthz())
+	logger.Info().Str("port", config.Port).Msg("starting server")
 
-	return e
+
+	go func() {
+		if err := e.Start(":" + config.Port); err != nil && err != http.ErrServerClosed {
+			logger.Fatal().Err(err).Msg("failed to start server")
+		}
+	}()
+
+	return func(ctx context.Context) error {
+		return e.Shutdown(ctx)
+	}
 }

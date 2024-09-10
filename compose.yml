@@ -1,7 +1,8 @@
 services:
   the-service:
+    restart: always
+    profiles: [dev]
     build:
-
       context: .
       dockerfile: Dockerfile
     ports:
@@ -15,6 +16,7 @@ services:
     depends_on:
       - redis
       - mysql
+      - postgres
       # - kafka
 
   redis:
@@ -41,6 +43,24 @@ services:
       timeout: 5s
       retries: 6
 
+  postgres:
+    image: bitnami/postgresql
+    restart: always
+    volumes:
+      - ./postgres_data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRESQL_USERNAME: the_service_user
+      POSTGRESQL_PASSWORD: the_service_password
+      POSTGRESQL_DATABASE: the_service_database
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U the_service_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
   # kafka:
   #   image: docker.io/bitnami/kafka:3.5
   #   ports:
@@ -61,8 +81,8 @@ services:
 
 
 # Names our volume
-volumes:
+# volumes:
   # my-db:
-  postgres-data:
+  # postgres-data:
   # kafka_data:
   #   driver: local

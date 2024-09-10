@@ -4,14 +4,18 @@ import (
 	"context"
 
 	"github.com/redis/go-redis/v9"
-	"go.uber.org/zap"
+	"github.com/rs/zerolog"
+	"github.com/samber/do"
 )
 
 type RedisConfig struct {
-	Address string
+	Address string `validate:"required"`
 }
 
-func ConnectRedis(logger *zap.Logger, config Config) *redis.Client {
+func ConnectRedis(i *do.Injector) (*redis.Client, error) {
+	logger := do.MustInvoke[zerolog.Logger](i)
+	config := do.MustInvoke[Config](i)
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     config.RedisConfig.Address, // TODO
 		Password: "", // no password set
@@ -20,8 +24,8 @@ func ConnectRedis(logger *zap.Logger, config Config) *redis.Client {
 
 	status := rdb.Ping(context.Background())
 	if status.Err() != nil {
-		logger.Fatal("failed to connect to redis", zap.Error(status.Err()))
+		logger.Fatal().Err(status.Err()).Msg("failed to connect to redis")
 	}
 
-	return rdb
+	return rdb, nil
 }

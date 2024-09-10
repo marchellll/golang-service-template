@@ -1,57 +1,57 @@
 package app
 
 import (
-	"golang-service-template/internal/controllers"
-	"golang-service-template/internal/services"
+	"context"
+	"golang-service-template/internal/handler"
+	"golang-service-template/internal/service"
+	"io"
 
-	"go.uber.org/zap"
+	"github.com/samber/do"
+
+	"github.com/rs/zerolog"
 )
 
 // Container is a struct that holds all the components
 // of the application: controllers, services, middlewares, auth, etc
 type Container struct {
 	// Logger
-	Logger *zap.Logger
+	Logger zerolog.Logger
 
 	// configs
 	Config Config
 
 	// services
-	HealthService services.HealthService
+	HealthService service.HealthService
+	service.TodoService
 
 	// controllers
-	HealthController controllers.HealthzController
+	HealthController handler.HealthzController
 }
 
-// NewDI is a constructor for DI
-// this will be the default DI for the application
-// Test can create a new DI with their own (mini) dependencies
-func NewContainer() Container {
+func NewInjector(
+	ctx context.Context,
+	getenv func(string) string,
+	stdout, stderr io.Writer,
+) *do.Injector {
+
+	injector := do.New()
+
 	// logger
-	logger := NewLogger()
+	do.ProvideValue(injector, NewLogger(stdout))
 
 	// configs
-	config := NewConfig()
+	do.ProvideValue(injector, NewConfig(getenv))
 
-	gormDB := ConnectDB(logger, config)
-	redis := ConnectRedis(logger, config)
+	do.Provide(injector, ConnectDB)
+	do.Provide(injector, ConnectRedis)
 
 	// services
-	healthService := services.NewHealthService(gormDB, redis)
+	do.Provide(injector, service.NewHealthService)
+	do.Provide(injector, service.NewTodoService)
 
-	// controllers
-	healthController := controllers.NewHealthzController(healthService)
+	// handler
+	do.Provide(injector, handler.NewHealthzController)
+	do.Provide(injector, handler.NewTodoController)
 
-	return Container{
-		// logger
-		Logger: logger,
-
-		Config: config,
-
-		// services
-		HealthService: healthService,
-
-		// controllers
-		HealthController: healthController,
-	}
+	return injector
 }
