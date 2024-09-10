@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/samber/do"
 
+	"golang-service-template/internal/errz"
 	"golang-service-template/internal/handler"
 	"golang-service-template/internal/middleware"
 	"net/http"
@@ -21,6 +22,7 @@ func addRoutes(
 
 	// global middlewares
 	e.Use(echo_middleware.Recover())
+	e.Use(errz.ErrzMiddleware())
 	e.Use(echo_middleware.CORS())
 	e.Use(middleware.LoggerMiddleware(logger))
 
@@ -54,5 +56,6 @@ func addTodosRoutes(injector *do.Injector, e *echo.Echo) {
 
 	todoGroup.GET("", do.MustInvoke[handler.TodoController](injector).GetTodos())
 	todoGroup.POST("", do.MustInvoke[handler.TodoController](injector).CreateTodo())
+	todoGroup.GET("/:id", do.MustInvoke[handler.TodoController](injector).GetTodo())
 	todoGroup.DELETE("/:id", do.MustInvoke[handler.TodoController](injector).DeleteTodo())
 }

@@ -18,12 +18,44 @@ import (
 
 type TodoController interface {
 	GetTodos() echo.HandlerFunc
+	GetTodo() echo.HandlerFunc
 	CreateTodo() echo.HandlerFunc
 	DeleteTodo() echo.HandlerFunc
 }
 
 type todoController struct {
 	todoService service.TodoService
+}
+
+// GetTodo implements TodoController.
+func (tc *todoController) GetTodo() echo.HandlerFunc {
+	validate := validator.New()
+
+	return func(c echo.Context) error {
+		id := c.Param("id")
+
+		err := validate.Var(id, "required,number")
+		if err != nil {
+			return err
+		}
+
+		idUint, err := strconv.ParseUint(id, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		todo, err := tc.todoService.Get(c.Request().Context(), idUint)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, map[string]any{
+			"meta": map[string]any{
+				"status":  http.StatusOK,
+			},
+			"data": todo,
+		})
+	}
 }
 
 // CreateTodo implements TodoController.
@@ -35,7 +67,6 @@ func (tc *todoController) CreateTodo() echo.HandlerFunc {
 	uni := ut.New(english, english)
 	trans, _ := uni.GetTranslator("en") // `en` should be from request header
 	_ = en_translations.RegisterDefaultTranslations(validate, trans)
-
 
 	type todo struct {
 		Text string `json:"text" validate:"required"`
@@ -97,7 +128,7 @@ func (t *todoController) DeleteTodo() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]any{
 			"meta": map[string]any{
-				"status": http.StatusOK,
+				"status":  http.StatusOK,
 				"message": "deleted",
 			},
 		})
@@ -116,8 +147,8 @@ func (t *todoController) GetTodos() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]any{
 			"meta": map[string]any{
-				"total": len(todos),
-				"status":  http.StatusOK,
+				"total":  len(todos),
+				"status": http.StatusOK,
 			},
 			"data": todos,
 		})

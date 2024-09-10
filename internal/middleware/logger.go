@@ -32,7 +32,13 @@ func LoggerMiddleware(logger zerolog.Logger) echo.MiddlewareFunc {
 
 			duration := time.Since(startTime)
 
-			logger.Debug().
+			lvl := zerolog.DebugLevel
+
+			if err != nil {
+				lvl = zerolog.ErrorLevel
+			}
+
+			logger.WithLevel(lvl).
 				Str("method", req.Method).
 				Str("uri", req.RequestURI).
 				Int("status", res.Status).

@@ -28,3 +28,6 @@ mysql_data
 
 # air
 tmp
+
+
+__debug*

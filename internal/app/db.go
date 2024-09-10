@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/rs/zerolog"
+	gormzerolog "github.com/vitaliy-art/gorm-zerolog"
 )
 
 type DbConfig struct {
@@ -49,7 +50,9 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 		dialector = postgres.Open(dsn)
 	}
 
-	gormDB, err := gorm.Open(dialector, &gorm.Config{})
+	gormDB, err := gorm.Open(dialector, &gorm.Config{
+		Logger: gormzerolog.NewGormLogger(),
+	})
 
 	if err != nil {
 		logger.Fatal().Err(err).Msg("failed to connect to DB")
