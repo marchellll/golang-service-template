@@ -14,6 +14,8 @@ type PrettyError struct {
 	Code string
 	Message string
 	cause error
+
+	// TODO: add error details
 }
 
 func (e PrettyError) Error() string {
@@ -33,8 +35,6 @@ func (e PrettyError) Format(s fmt.State, verb rune) {
 }
 
 func NewPrettyError(httpStatusCode int, code, message string, cause error) PrettyError {
-
-	errors.New("aa")
 
 	return PrettyError{
 		HttpStatusCode: httpStatusCode,
