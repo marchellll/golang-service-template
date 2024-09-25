@@ -42,3 +42,6 @@ jobs:
 
       - name: Run tests
         run: go test ./...
+
+      - name: Build
+        run: go build -o ./dist/run ./cmd/server
