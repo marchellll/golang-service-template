@@ -59,7 +59,7 @@ require (
 	golang.org/x/tools v0.21.0 // indirect
 	gorm.io/datatypes v1.2.0 // indirect
 	gorm.io/driver/mysql v1.5.6
-	gorm.io/driver/sqlite v1.5.5
+	gorm.io/driver/sqlite v1.5.5 // indirect
 	gorm.io/gen v0.3.26
 	gorm.io/gorm v1.25.10
 	gorm.io/hints v1.1.2 // indirect

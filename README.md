@@ -79,8 +79,8 @@ After that we use GORMS's GEN to generate the models and fluent query from the d
 ```sh
 go install gorm.io/gen/tools/gentool@latest
 
-gentool -dsn "the_service_user:the_service_password@tcp(127.0.0.1:3306)/the_service_database" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -withUnitTest -fieldSignable -db mysql
-gentool -dsn "host=localhost user=the_service_user password=the_service_password dbname=the_service_database port=5432 sslmode=disable" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -withUnitTest -fieldSignable -db postgres
+gentool -dsn "the_service_user:the_service_password@tcp(127.0.0.1:3306)/the_service_database" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -db mysql
+gentool -dsn "host=localhost user=the_service_user password=the_service_password dbname=the_service_database port=5432 sslmode=disable" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -db postgres
 ```
 
 ## To run in docker
