@@ -56,9 +56,7 @@ func (controller *healthzController) GetHealthz() echo.HandlerFunc {
 			Message: message,
 		}
 
-		c.JSON(http.StatusOK, resp)
-
-		return nil
+		return c.JSON(http.StatusOK, resp)
 
 	}
 }
@@ -89,9 +87,7 @@ func (controller *healthzController) GetReadyz() echo.HandlerFunc {
 			Message: message,
 		}
 
-		c.JSON(http.StatusOK, resp)
-
-		return nil
+		return c.JSON(http.StatusOK, resp)
 
 	}
 }
