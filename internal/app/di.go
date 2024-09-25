@@ -22,7 +22,7 @@ type Container struct {
 
 	// services
 	HealthService service.HealthService
-	service.TodoService
+	service.TaskService
 
 	// controllers
 	HealthController handler.HealthzController
@@ -47,11 +47,11 @@ func NewInjector(
 
 	// services
 	do.Provide(injector, service.NewHealthService)
-	do.Provide(injector, service.NewTodoService)
+	do.Provide(injector, service.NewTaskService)
 
 	// handler
 	do.Provide(injector, handler.NewHealthzController)
-	do.Provide(injector, handler.NewTodoController)
+	do.Provide(injector, handler.NewTaskController)
 
 	return injector
 }

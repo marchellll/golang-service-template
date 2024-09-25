@@ -2,18 +2,29 @@ schema "public" {
   comment = "standard public schema"
 }
 
-table "todos" {
+table "tasks" {
     schema = schema.public
 
-    comment = "todos table"
+    comment = "tasks table"
 
     column "id" {
-      type = bigserial
+      type = uuid
     }
 
-    column "text" {
+    column "description" {
       type = text
     }
+
+    column "state" {
+      type = text
+    }
+
+    column "created_by" {
+      type = timestamptz
+      null = true
+      default = sql("now()")
+    }
+
 
     column "created_at" {
       type = timestamptz

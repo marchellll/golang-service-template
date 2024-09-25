@@ -26,9 +26,6 @@ func addRoutes(
 	e.Use(echo_middleware.CORS())
 	e.Use(middleware.LoggerMiddleware(logger))
 
-
-
-
 	// routes
 	addHealthzRoutes(injector, e)
 	addTodosRoutes(injector, e)
@@ -54,8 +51,8 @@ func addTodosRoutes(injector *do.Injector, e *echo.Echo) {
 		return false, nil
 	}))
 
-	todoGroup.GET("", do.MustInvoke[handler.TodoController](injector).GetTodos())
-	todoGroup.POST("", do.MustInvoke[handler.TodoController](injector).CreateTodo())
-	todoGroup.GET("/:id", do.MustInvoke[handler.TodoController](injector).GetTodo())
-	todoGroup.DELETE("/:id", do.MustInvoke[handler.TodoController](injector).DeleteTodo())
+	todoGroup.GET("", do.MustInvoke[handler.TaskController](injector).Find())
+	todoGroup.POST("", do.MustInvoke[handler.TaskController](injector).Create())
+	todoGroup.GET("/:id", do.MustInvoke[handler.TaskController](injector).GetById())
+	todoGroup.DELETE("/:id", do.MustInvoke[handler.TaskController](injector).Delete())
 }

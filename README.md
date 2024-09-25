@@ -8,7 +8,7 @@ this should be a good starting point for building a new service in Go for small 
 - logging
 - db migration
 
-- Simple CRUD of Todo
+- Simple CRUD of Tasks
 - Simple User Auth
 - Simple RBAC
 
@@ -55,6 +55,7 @@ Now we can apply the migration using `go-migrate` (https://github.com/golang-mig
 
 # create a manual new migration
 # dont forget to add up and down sql scripts
+# the atals command above already did this, if we want to do it manually, this is the way
 docker run -v ./migrations:/migrations  --rm migrate/migrate create -ext sql -dir migrations create_users_table
 
 # apply the migration

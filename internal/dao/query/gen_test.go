@@ -78,7 +78,7 @@ func Test_WithContext(t *testing.T) {
 
 	for _, ctx := range []context.Context{
 		qCtx.SchemaMigration.UnderlyingDB().Statement.Context,
-		qCtx.Todo.UnderlyingDB().Statement.Context,
+		qCtx.Task.UnderlyingDB().Statement.Context,
 	} {
 		if v := ctx.Value(key); v != value {
 			t.Errorf("get value from context fail, expect %q, got %q", value, v)
