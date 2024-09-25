@@ -1,6 +1,17 @@
 # golang-service-template
 A template to clone when building new service in Go
 
+this should be a good starting point for building a new service in Go for small projects. It includes:
+- http server
+- db connection
+- redis connection
+- logging
+- db migration
+
+- Simple CRUD of Todo
+- Simple User Auth
+- Simple RBAC
+
 
 ## DB migrations
 
@@ -37,7 +48,7 @@ atlas migrate diff create_todos \
   --format '{{ sql . "  " }}'
 ```
 
-Now we can apply the migration using `go-migrate` (https://github.com/golang-migrate/migrate), instead of atlas's cloud service.
+Now we can apply the migration using `go-migrate` (https://github.com/golang-migrate/migrate), instead of (paid) atlas's cloud service.
 
 
 ```sh
@@ -71,42 +82,59 @@ gentool -dsn "the_service_user:the_service_password@tcp(127.0.0.1:3306)/the_serv
 gentool -dsn "host=localhost user=the_service_user password=the_service_password dbname=the_service_database port=5432 sslmode=disable" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -withUnitTest -fieldSignable -db postgres
 ```
 
-## To run in local
-
-```bash
-cp env.example .env
-go run ./cmd/server/main.go
-```
-## To build and run in local
-
-```bash
-go build -o ./dist/run ./cmd/server
-./dist/run
-```
-
 ## To run in docker
 
 ```sh
-docker run -p 8080:8080 -e PORT=8080 --rm -it $(docker build -q .)
+# dont forget the env file
+cp .env.example .env
+```
 
-docker compose --profile dev up --build the-service
+Make sure to change `DB_HOST` to `postgres` (and any other host) in `.env` file
 
-# run dependencies only, without the service
-docker compose --profile dev up --build the-service
+```sh
+DB_HOST=postgres # this one for docker-compose
+# DB_HOST=localhost # this one for non-docker
 ```
 
 
-TODO: add docker file
-TODO: add github-action
+```sh
+# run all the dependencies and the service
+docker compose --profile dev up
 
-## Run using Air
+# run dependencies only, without the service
+docker compose up
 
-https://github.com/air-verse/air
+# build and run the service only
+docker run -p 8080:8080 --env-file .env --rm -it $(docker build -q .)
+```
+
+
+## To run in local
+
+Make sure to change `DB_HOST` to `localhost` (and any other host) in `.env` file
 
 ```sh
-go install github.com/air-verse/air@latest
+# dont forget the env file
+cp .env.example .env
+```
 
-air
+
+```bash
+# run the service natively
+go run ./cmd/server/main.go
+```
+
+## To build and run in local
+
+```sh
+# dont forget the env file
+cp .env.example .env
+```
+
+```bash
+# build and run the service natively
+go build -o ./dist/run ./cmd/server
+./dist/run
 ```
 
 
@@ -116,13 +144,6 @@ https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-yea
 
 
 ## TODO
-
-
-- db migration✅
-
-- redis ✅
-- mysql: https://xata.io/pricing ✅
-- logging ✅
 
 
 - playwright

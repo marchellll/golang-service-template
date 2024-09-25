@@ -44,6 +44,8 @@ func NewConfig(getenv func(string) string) Config {
 	err := validate.Struct(_config)
 
 	if err == nil {
+		log.Trace().Any("config", _config.DbConfig).Msg("config validated")
+
 		return _config
 	}
 

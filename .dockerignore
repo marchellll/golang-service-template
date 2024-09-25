@@ -65,3 +65,4 @@ tmp
 dist
 
 .env
+.env.template
