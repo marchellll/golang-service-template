@@ -6,4 +6,3 @@ package app holds the application initialization:
 - router initialization
 */
 package app
-

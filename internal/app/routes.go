@@ -28,7 +28,7 @@ func addRoutes(
 
 	// routes
 	addHealthzRoutes(injector, e)
-	addTodosRoutes(injector, e)
+	addTasksRoutes(injector, e)
 
 	// root route
 	e.Any("/", echo.WrapHandler(http.NotFoundHandler()))
@@ -42,17 +42,18 @@ func addHealthzRoutes(injector *do.Injector, e *echo.Echo) {
 	e.GET("/errorz", healthController.Errorz())
 }
 
-func addTodosRoutes(injector *do.Injector, e *echo.Echo) {
-	todoGroup := e.Group("/todos")
-	todoGroup.Use(echo_middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		if username == "username" && password == "password" {
-			return true, nil
-		}
-		return false, nil
-	}))
+func addTasksRoutes(injector *do.Injector, e *echo.Echo) {
+	taskGroup := e.Group("/tasks")
 
-	todoGroup.GET("", do.MustInvoke[handler.TaskController](injector).Find())
-	todoGroup.POST("", do.MustInvoke[handler.TaskController](injector).Create())
-	todoGroup.GET("/:id", do.MustInvoke[handler.TaskController](injector).GetById())
-	todoGroup.DELETE("/:id", do.MustInvoke[handler.TaskController](injector).Delete())
+	// taskGroup.Use(echo_middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+	// 	if username == "username" && password == "password" {
+	// 		return true, nil
+	// 	}
+	// 	return false, nil
+	// }))
+
+	taskGroup.GET("", do.MustInvoke[handler.TaskController](injector).Find())
+	taskGroup.POST("", do.MustInvoke[handler.TaskController](injector).Create())
+	taskGroup.GET("/:id", do.MustInvoke[handler.TaskController](injector).GetById())
+	taskGroup.DELETE("/:id", do.MustInvoke[handler.TaskController](injector).Delete())
 }

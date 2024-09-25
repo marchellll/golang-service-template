@@ -20,7 +20,7 @@ func ErrzMiddleware() echo.MiddlewareFunc {
 			if errors.As(err, &prettyError) {
 				return c.JSON(prettyError.HttpStatusCode, map[string]any{
 					"meta": map[string]any{
-						"status":  prettyError.HttpStatusCode,
+						"status": prettyError.HttpStatusCode,
 					},
 					"error": map[string]any{
 						"code":    prettyError.Code,

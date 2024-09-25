@@ -10,9 +10,9 @@ import (
 )
 
 type Config struct {
-	Host string
-	Port string `validate:"required"`
-	DbConfig `validate:"required"`
+	Host        string
+	Port        string `validate:"required"`
+	DbConfig    `validate:"required"`
 	RedisConfig `validate:"required"`
 }
 
@@ -24,15 +24,14 @@ func NewConfig(getenv func(string) string) Config {
 	trans, _ := uni.GetTranslator("en")
 	_ = en_translations.RegisterDefaultTranslations(validate, trans)
 
-
 	_config := Config{
 		Host: getenv("HOST"),
 		Port: getenv("PORT"),
 		DbConfig: DbConfig{
-			Dialect: getenv("DB_DIALECT"),
-			Host: getenv("DB_HOST"),
-			Port: getenv("DB_PORT"),
-			DBName: getenv("DB_DBNAME"),
+			Dialect:  getenv("DB_DIALECT"),
+			Host:     getenv("DB_HOST"),
+			Port:     getenv("DB_PORT"),
+			DBName:   getenv("DB_DBNAME"),
 			Username: getenv("DB_USERNAME"),
 			Password: getenv("DB_PASSWORD"),
 		},

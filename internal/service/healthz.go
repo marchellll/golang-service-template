@@ -12,22 +12,22 @@ import (
 )
 
 type HealthService interface {
-	Healthcheck(ctx context.Context) (error)
+	Healthcheck(ctx context.Context) error
 }
 
 type healthService struct {
-	db *gorm.DB
+	db    *gorm.DB
 	redis *redis.Client
 }
 
 func NewHealthService(i *do.Injector) (HealthService, error) {
 	return &healthService{
-		db: do.MustInvoke[*gorm.DB](i),
+		db:    do.MustInvoke[*gorm.DB](i),
 		redis: do.MustInvoke[*redis.Client](i),
 	}, nil
 }
 
-func (service *healthService) Healthcheck(ctx context.Context) (error) {
+func (service *healthService) Healthcheck(ctx context.Context) error {
 
 	status := service.redis.Ping(ctx)
 	if status.Err() != nil {
@@ -45,17 +45,16 @@ func (service *healthService) Healthcheck(ctx context.Context) (error) {
 	}
 
 	db, err := service.db.DB()
-	if (err != nil) {
+	if err != nil {
 		return errors.Join(err, errors.New("failed to get db connection"))
 	}
 
 	err = db.Ping()
-	if (err != nil) {
+	if err != nil {
 		return errors.Join(err, errors.New("failed to get ping db"))
 	}
 
-	service.redis.SetEx(ctx, "healthcheck", "OK", time.Second * 30)
+	service.redis.SetEx(ctx, "healthcheck", "OK", time.Second*30)
 
 	return nil
 }
-

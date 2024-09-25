@@ -15,7 +15,6 @@ import (
 	"github.com/samber/do"
 )
 
-
 func run(
 	ctx context.Context,
 	args []string,
@@ -38,7 +37,7 @@ func run(
 	)
 
 	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := shutdownFn(ctx); err != nil {
@@ -50,9 +49,9 @@ func run(
 
 func main() {
 	err := godotenv.Load()
-  if err != nil {
-    log.Println("Error loading .env file")
-  }
+	if err != nil {
+		log.Println("Error loading .env file")
+	}
 
 	ctx := context.Background()
 

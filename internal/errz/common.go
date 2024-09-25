@@ -7,13 +7,11 @@ import (
 	"github.com/cockroachdb/errors/withstack"
 )
 
-
-
 type PrettyError struct {
 	HttpStatusCode int
-	Code string
-	Message string
-	cause error
+	Code           string
+	Message        string
+	cause          error
 
 	// TODO: add error details
 }
@@ -38,8 +36,8 @@ func NewPrettyError(httpStatusCode int, code, message string, cause error) Prett
 
 	return PrettyError{
 		HttpStatusCode: httpStatusCode,
-		Code: code,
-		Message: message,
-		cause: withstack.WithStackDepth(cause, 1),
+		Code:           code,
+		Message:        message,
+		cause:          withstack.WithStackDepth(cause, 1),
 	}
 }

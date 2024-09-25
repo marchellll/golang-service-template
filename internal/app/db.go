@@ -15,14 +15,13 @@ import (
 
 type DbConfig struct {
 	Dialect string `validate:"required"`
-	Host	 string `validate:"required"`
-	Port	 string `validate:"required"`
-	DBName	 string `validate:"required"`
+	Host    string `validate:"required"`
+	Port    string `validate:"required"`
+	DBName  string `validate:"required"`
 
 	Username string `validate:"required"`
 	Password string `validate:"required"`
 }
-
 
 func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 

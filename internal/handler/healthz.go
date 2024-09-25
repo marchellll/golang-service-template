@@ -40,8 +40,8 @@ func (controller *healthzController) GetHealthz() echo.HandlerFunc {
 		body := new(req)
 
 		if err := c.Bind(body); err != nil {
-      return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-    }
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
 
 		err := controller.healthService.Healthcheck(c.Request().Context())
 
@@ -62,7 +62,6 @@ func (controller *healthzController) GetHealthz() echo.HandlerFunc {
 
 	}
 }
-
 
 // Healthz method
 func (controller *healthzController) GetReadyz() echo.HandlerFunc {
@@ -74,8 +73,8 @@ func (controller *healthzController) GetReadyz() echo.HandlerFunc {
 		body := new(req)
 
 		if err := c.Bind(body); err != nil {
-      return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-    }
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
 
 		err := controller.healthService.Healthcheck(c.Request().Context())
 
@@ -96,7 +95,6 @@ func (controller *healthzController) GetReadyz() echo.HandlerFunc {
 
 	}
 }
-
 
 func (controller *healthzController) Errorz() echo.HandlerFunc {
 	return func(c echo.Context) error {

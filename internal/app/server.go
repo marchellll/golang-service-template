@@ -17,10 +17,9 @@ func RunNewServer(
 
 	e := echo.New()
 
-  addRoutes(e, injector)
+	addRoutes(e, injector)
 
 	logger.Info().Str("port", config.Port).Msg("starting server")
-
 
 	go func() {
 		if err := e.Start(":" + config.Port); err != nil && err != http.ErrServerClosed {

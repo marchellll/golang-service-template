@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"golang-service-template/internal/dao/model"
 	"golang-service-template/internal/service"
@@ -27,7 +26,6 @@ type TaskController interface {
 type taskController struct {
 	taskService service.TaskService
 }
-
 
 // Create implements TaskController.
 func (tc *taskController) Create() echo.HandlerFunc {

@@ -27,7 +27,6 @@ func LoggerMiddleware(logger zerolog.Logger) echo.MiddlewareFunc {
 				Str("correlation_id", res.Header().Get(echo.HeaderXCorrelationID)).
 				Msg("request received")
 
-
 			err := next(c)
 
 			duration := time.Since(startTime)
