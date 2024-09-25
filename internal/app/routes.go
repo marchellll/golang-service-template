@@ -52,8 +52,9 @@ func addTasksRoutes(injector *do.Injector, e *echo.Echo) {
 	// 	return false, nil
 	// }))
 
-	taskGroup.GET("", do.MustInvoke[handler.TaskController](injector).Find())
 	taskGroup.POST("", do.MustInvoke[handler.TaskController](injector).Create())
+	taskGroup.GET("", do.MustInvoke[handler.TaskController](injector).Find())
 	taskGroup.GET("/:id", do.MustInvoke[handler.TaskController](injector).GetById())
+	taskGroup.PATCH("/:id", do.MustInvoke[handler.TaskController](injector).Update())
 	taskGroup.DELETE("/:id", do.MustInvoke[handler.TaskController](injector).Delete())
 }

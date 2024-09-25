@@ -10,6 +10,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
 	"gorm.io/gorm"
+
+	"github.com/google/uuid"
 )
 
 type TaskService interface {
@@ -34,7 +36,15 @@ func NewTaskService(i *do.Injector) (TaskService, error) {
 
 // Create implements TaskService.
 func (s *taskService) Create(ctx context.Context, entity model.Task) (*model.Task, error) {
+	newID, err := uuid.NewV7()
+
+	if err != nil {
+		return nil, errz.NewPrettyError(http.StatusInternalServerError, "internal_server_error", "failed to generate new id", err)
+	}
+
 	entityp := &entity
+	entityp.ID = newID.String()
+	entityp.CreatedBy = newID.String() // TODO: get user id from context
 	if err := s.db.WithContext(ctx).Create(entityp).Error; err != nil {
 		return nil, errz.NewPrettyError(http.StatusInternalServerError, "internal_server_error", "failed to create task", err)
 	}
@@ -45,10 +55,10 @@ func (s *taskService) Create(ctx context.Context, entity model.Task) (*model.Tas
 func (s *taskService) Get(ctx context.Context, id string) (*model.Task, error) {
 	entity := &model.Task{}
 
-	err := s.db.WithContext(ctx).First(entity, id).Error
+	err := s.db.WithContext(ctx).First(entity, "id = ?", id).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errz.NewPrettyError(http.StatusNotFound, "not found", "entity not found", err)
+		return nil, errz.NewPrettyError(http.StatusNotFound, "not_found", "entity not found", err)
 	}
 
 	if err != nil {
@@ -70,17 +80,18 @@ func (s *taskService) Find(ctx context.Context) ([]model.Task, error) {
 
 // Update implements TaskService.
 func (s *taskService) Update(ctx context.Context, entity model.Task) (*model.Task, error) {
-	err := s.db.WithContext(ctx).Model(&model.Task{}).Select("*").Updates(entity).Error
+	entityp := &entity
+	err := s.db.WithContext(ctx).Model(&model.Task{}).Where("id", entity.ID).Select("state", "description").Omit("id").Updates(entityp).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errz.NewPrettyError(http.StatusNotFound, "not found", "entity not found", err)
+		return nil, errz.NewPrettyError(http.StatusNotFound, "not_found", "entity not found", err)
 	}
 
 	if err != nil {
 		return nil, errz.NewPrettyError(http.StatusInternalServerError, "internal_server_error", "failed to update entities", err)
 	}
 
-	return &entity, nil
+	return entityp, nil
 }
 
 // Delete implements TaskService.

@@ -20,11 +20,9 @@ table "tasks" {
     }
 
     column "created_by" {
-      type = timestamptz
-      null = true
-      default = sql("now()")
+      type = uuid
+      null = false
     }
-
 
     column "created_at" {
       type = timestamptz

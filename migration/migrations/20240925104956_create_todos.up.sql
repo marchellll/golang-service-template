@@ -3,7 +3,7 @@ CREATE TABLE "public"."tasks" (
   "id" uuid NOT NULL,
   "description" text NOT NULL,
   "state" text NOT NULL,
-  "created_by" timestamptz NULL DEFAULT now(),
+  "created_by" uuid NOT NULL,
   "created_at" timestamptz NULL DEFAULT now(),
   "updated_at" timestamptz NULL DEFAULT now(),
   "deleted_at" timestamptz NULL,

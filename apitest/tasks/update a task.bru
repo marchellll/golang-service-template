@@ -1,0 +1,17 @@
+meta {
+  name: update a task
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:8080/tasks
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "description": "Tessst 1"
+  }
+}

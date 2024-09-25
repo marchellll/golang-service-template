@@ -1,6 +1,8 @@
 package errz
 
 import (
+	"net/http"
+
 	"github.com/cockroachdb/errors"
 
 	"github.com/labstack/echo/v4"
@@ -29,7 +31,15 @@ func ErrzMiddleware() echo.MiddlewareFunc {
 				})
 			}
 
-			return err
+			return c.JSON(http.StatusInternalServerError, map[string]any{
+				"meta": map[string]any{
+					"status": http.StatusInternalServerError,
+				},
+				"error": map[string]any{
+					"code": "ttts",
+					"message": "Tetap Tenang, Tetap Semangat",
+				},
+			})
 		}
 	}
 }

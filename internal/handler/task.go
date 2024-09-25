@@ -121,7 +121,57 @@ func (tc *taskController) GetById() echo.HandlerFunc {
 
 // Update implements TaskController.
 func (tc *taskController) Update() echo.HandlerFunc {
-	panic("unimplemented")
+
+	// TODO: validator instance & translation creation can be moved to middleware
+	validate := validator.New()
+
+	english := en.New()
+	uni := ut.New(english, english)
+	trans, _ := uni.GetTranslator("en") // `en` should be from request header
+	_ = en_translations.RegisterDefaultTranslations(validate, trans)
+
+	type task struct {
+		Description string `json:"description" validate:"required"`
+	}
+
+	return func(c echo.Context) error {
+		id := c.Param("id")
+
+		err := validate.Var(id, "required,uuid")
+		if err != nil {
+			return err
+		}
+
+		t := task{}
+
+		if err := c.Bind(&t); err != nil {
+			// TODO: this specific type in middleware
+			// to show 400 for bind error
+			return err
+		}
+
+		err = validate.Struct(t)
+		if err != nil {
+			// TODO: this specific type in middleware
+			// to show 400 for validation errors
+			return err
+		}
+
+		createdTask, err := tc.taskService.Update(c.Request().Context(), model.Task{
+			ID:          id,
+			Description: t.Description,
+		})
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusCreated, map[string]any{
+			"meta": map[string]any{
+				"status": http.StatusCreated,
+			},
+			"data": createdTask,
+		})
+	}
 }
 
 // Delete implements TaskController.
@@ -131,7 +181,7 @@ func (t *taskController) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
 
-		err := validate.Var(id, "required,number")
+		err := validate.Var(id, "required,uuid")
 		if err != nil {
 			return err
 		}

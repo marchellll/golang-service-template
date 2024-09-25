@@ -1,0 +1,17 @@
+meta {
+  name: create task
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/tasks
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "description": "Tessst"
+  }
+}
