@@ -37,11 +37,27 @@ jobs:
           go-version: stable
           cache-dependency-path: subdir/go.sum
 
+
+      # Cache Go modules
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            /go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Install dependencies
         run: go mod download
 
       - name: Run tests
-        run: go test ./...
+        run: go test -v ./...
+
+      # Vet the code
+      - name: Run Go Vet
+        run: go vet ./...
 
       - name: Build
-        run: go build -o ./dist/run ./cmd/server
+        run: go build -v -o ./dist/run ./cmd/server
