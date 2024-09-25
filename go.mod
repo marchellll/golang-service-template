@@ -5,6 +5,7 @@ go 1.22.3
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.12.0
+	github.com/vitaliy-art/gorm-zerolog v1.2.0
 	gorm.io/driver/postgres v1.5.0
 )
 
@@ -23,7 +24,6 @@ require (
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
-	github.com/vitaliy-art/gorm-zerolog v1.2.0 // indirect
 )
 
 require (
