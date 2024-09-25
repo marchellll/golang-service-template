@@ -83,6 +83,7 @@ gentool -dsn "the_service_user:the_service_password@tcp(127.0.0.1:3306)/the_serv
 gentool -dsn "host=localhost user=the_service_user password=the_service_password dbname=the_service_database port=5432 sslmode=disable" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -db postgres
 ```
 
+
 ## To run in docker
 
 ```sh

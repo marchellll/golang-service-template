@@ -157,9 +157,8 @@ func (tc *taskController) Update() echo.HandlerFunc {
 			return err
 		}
 
-		createdTask, err := tc.taskService.Update(c.Request().Context(), model.Task{
-			ID:          id,
-			Description: t.Description,
+		createdTask, err := tc.taskService.Update(c.Request().Context(), id, map[string]any{
+			"description": t.Description,
 		})
 		if err != nil {
 			return err
