@@ -141,6 +141,29 @@ go build -o ./dist/run ./cmd/server
 ```
 
 
+## To test the service
+
+we can use Bruno to test the API
+
+- https://www.usebruno.com/manifesto
+- https://www.usebruno.com/blog/the-saas-dilemma
+
+
+- run a collection: https://docs.usebruno.com/get-started/bruno-basics/run-a-collection
+
+We can use the cli
+
+```sh
+npm install -g @usebruno/cli
+```
+
+Then
+```sh
+cd apitest
+bru run --env local
+```
+
+
 ## Ref
 
 https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/
