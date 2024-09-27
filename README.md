@@ -15,7 +15,7 @@ this should be a good starting point for building a new service in Go for small 
 
 ## DB migrations
 
-use https://atlasgo.io/getting-started/. Atlas use declarative approach, we diefine the "desired" end state instead of migration file. Like terraform.
+use https://atlasgo.io/getting-started/. Atlas use declarative approach, we define the "desired" end state instead of migration file. Like terraform.
 
 ```sh
 # install
@@ -52,12 +52,6 @@ Now we can apply the migration using `go-migrate` (https://github.com/golang-mig
 
 
 ```sh
-
-# create a manual new migration
-# dont forget to add up and down sql scripts
-# the atals command above already did this, if we want to do it manually, this is the way
-docker run -v ./migrations:/migrations  --rm migrate/migrate create -ext sql -dir migrations create_users_table
-
 # apply the migration
 # migrations must be tested in local before running anywhere else
 # should use transaction
@@ -71,6 +65,13 @@ docker run -v .//migration/migrations:/migrations --network="host" migrate/migra
 # rollback the migration
 # this must always be tested in local before running anywhere else
 docker run -v ./migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "postgres://the_service_user:the_service_password@localhost:5432/the_service_database?sslmode=disable" down 1
+
+
+# create a manual new migration
+# dont forget to add up and down sql scripts
+# the atals command above already did this, if we want to do it manually, this is the way
+docker run -v ./migrations:/migrations  --rm migrate/migrate create -ext sql -dir migrations create_users_table
+
 ```
 
 

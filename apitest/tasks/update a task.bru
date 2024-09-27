@@ -5,13 +5,17 @@ meta {
 }
 
 patch {
-  url: http://localhost:8080/tasks
+  url: http://localhost:8080/tasks/:id
   body: json
   auth: none
 }
 
+params:path {
+  id: 019228ce-6424-7ef0-bd32-7bec3b3198a3
+}
+
 body:json {
   {
-    "description": "Tessst 1"
+    "description": "Tessst 2"
   }
 }
