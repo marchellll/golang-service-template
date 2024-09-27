@@ -5,7 +5,18 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/tasks
+  url: {{host_url}}/tasks
   body: none
   auth: none
+}
+
+vars:post-response {
+  data.tasks: res.body.data
+}
+
+script:post-response {
+  function onResponse(res) {
+    let data = res.getBody();
+    let tasks = bru.setEnvVar("data.tasks", data.data.tasks);
+  }
 }

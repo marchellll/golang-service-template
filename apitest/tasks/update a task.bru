@@ -5,17 +5,24 @@ meta {
 }
 
 patch {
-  url: http://localhost:8080/tasks/:id
+  url: {{host_url}}/tasks/:id
   body: json
   auth: none
 }
 
 params:path {
-  id: 019228ce-6424-7ef0-bd32-7bec3b3198a3
+  id: {{id}}
 }
 
 body:json {
   {
     "description": "Tessst 2"
   }
+}
+
+script:pre-request {
+  let tasks = bru.getVar("data.tasks");
+  console.log(tasks)
+  
+  bru.setVar("id",tasks[0].id)
 }
