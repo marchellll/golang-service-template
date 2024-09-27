@@ -20,6 +20,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		db:              db,
 		SchemaMigration: newSchemaMigration(db, opts...),
 		Task:            newTask(db, opts...),
+		User:            newUser(db, opts...),
 	}
 }
 
@@ -28,6 +29,7 @@ type Query struct {
 
 	SchemaMigration schemaMigration
 	Task            task
+	User            user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -37,6 +39,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		db:              db,
 		SchemaMigration: q.SchemaMigration.clone(db),
 		Task:            q.Task.clone(db),
+		User:            q.User.clone(db),
 	}
 }
 
@@ -53,18 +56,21 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		db:              db,
 		SchemaMigration: q.SchemaMigration.replaceDB(db),
 		Task:            q.Task.replaceDB(db),
+		User:            q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
 	SchemaMigration *schemaMigrationDo
 	Task            *taskDo
+	User            *userDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		SchemaMigration: q.SchemaMigration.WithContext(ctx),
 		Task:            q.Task.WithContext(ctx),
+		User:            q.User.WithContext(ctx),
 	}
 }
 
