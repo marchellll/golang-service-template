@@ -24,7 +24,7 @@ this should be a good starting point for building a new service in Go for small 
 docker run -v ./migration/migrations:/migrations  --rm migrate/migrate create -ext sql -dir migrations create_users_table
 
 # apply the migration
-docker run -v .//migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "postgres://the_service_user:the_service_password@localhost:5432/the_service_database?sslmode=disable" up
+docker run --rm -v .//migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "postgres://the_service_user:the_service_password@localhost:5432/the_service_database?sslmode=disable" up
 
 
 # generate models and fluent query
@@ -70,6 +70,15 @@ go install gorm.io/gen/tools/gentool@latest
 
 gentool -dsn "the_service_user:the_service_password@tcp(127.0.0.1:3306)/the_service_database" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -db mysql
 gentool -dsn "host=localhost user=the_service_user password=the_service_password dbname=the_service_database port=5432 sslmode=disable" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -db postgres
+```
+
+## Quick Crud Generator
+
+After Making Migpation and Generating Models, we can use the `sergen` to generate the CRUD for the model.
+
+```sh
+# run from the root of the project
+go run ./cmd/sergen -ModuleName "golang-service-template" -EntityName Goose -EntityNamePlural Geese
 ```
 
 

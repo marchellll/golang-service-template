@@ -28,7 +28,7 @@ func addRoutes(
 
 	// routes
 	addHealthzRoutes(injector, e)
-	addTasksRoutes(injector, e)
+	addTaskRoutes(injector, e)
 
 	// root route
 	e.Any("/", echo.WrapHandler(http.NotFoundHandler()))
@@ -42,7 +42,7 @@ func addHealthzRoutes(injector *do.Injector, e *echo.Echo) {
 	e.GET("/errorz", healthController.Errorz())
 }
 
-func addTasksRoutes(injector *do.Injector, e *echo.Echo) {
+func addTaskRoutes(injector *do.Injector, e *echo.Echo) {
 	taskGroup := e.Group("/tasks")
 
 	// taskGroup.Use(echo_middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
