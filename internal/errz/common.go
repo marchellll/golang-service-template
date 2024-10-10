@@ -17,7 +17,11 @@ type PrettyError struct {
 }
 
 func (e PrettyError) Error() string {
-	return e.cause.Error()
+	if e.cause != nil {
+		return e.cause.Error()
+	}
+
+	return e.Message
 }
 
 func (e PrettyError) Unwrap() error {

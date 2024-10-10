@@ -83,13 +83,13 @@ func (t *taskController) Find() echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, map[string]any{
-			"meta": map[string]any{
-				"total":  len(tasks),
-				"status": http.StatusOK,
-			},
-			"data": tasks,
-		})
+		return c.JSON(
+			http.StatusOK,
+			NewResponse().
+				AddMeta("total", len(tasks)).
+				AddMeta("status", http.StatusOK).
+				SetData(tasks),
+		)
 	}
 }
 
@@ -110,12 +110,12 @@ func (tc *taskController) GetById() echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, map[string]any{
-			"meta": map[string]any{
-				"status": http.StatusOK,
-			},
-			"data": task,
-		})
+		return c.JSON(
+			http.StatusOK,
+			NewResponse().
+				AddMeta("status", http.StatusOK).
+				SetData(task),
+		)
 	}
 }
 
@@ -164,12 +164,12 @@ func (tc *taskController) Update() echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusCreated, map[string]any{
-			"meta": map[string]any{
-				"status": http.StatusCreated,
-			},
-			"data": createdTask,
-		})
+		return c.JSON(
+			http.StatusOK,
+			NewResponse().
+				AddMeta("status", http.StatusCreated).
+				SetData(createdTask),
+		)
 	}
 }
 
@@ -190,12 +190,12 @@ func (t *taskController) Delete() echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, map[string]any{
-			"meta": map[string]any{
-				"status":  http.StatusOK,
-				"message": "deleted",
-			},
-		})
+		return c.JSON(
+			http.StatusOK,
+			NewResponse().
+				AddMeta("status", http.StatusOK).
+				SetMessage("deleted"),
+		)
 	}
 }
 

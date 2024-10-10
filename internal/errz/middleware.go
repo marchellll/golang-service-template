@@ -22,7 +22,7 @@ func ErrzMiddleware() echo.MiddlewareFunc {
 			if errors.As(err, &prettyError) {
 				return c.JSON(prettyError.HttpStatusCode, map[string]any{
 					"meta": map[string]any{
-						"status": prettyError.HttpStatusCode,
+						"http_status_code": prettyError.HttpStatusCode,
 					},
 					"error": map[string]any{
 						"code":    prettyError.Code,
@@ -33,7 +33,7 @@ func ErrzMiddleware() echo.MiddlewareFunc {
 
 			return c.JSON(http.StatusInternalServerError, map[string]any{
 				"meta": map[string]any{
-					"status": http.StatusInternalServerError,
+					"http_status_code": http.StatusInternalServerError,
 				},
 				"error": map[string]any{
 					"code": "ttts",

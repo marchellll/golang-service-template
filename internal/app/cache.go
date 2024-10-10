@@ -2,19 +2,17 @@ package app
 
 import (
 	"context"
+	"golang-service-template/internal/common"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 	"github.com/samber/do"
 )
 
-type RedisConfig struct {
-	Address string `validate:"required"`
-}
 
 func ConnectRedis(i *do.Injector) (*redis.Client, error) {
 	logger := do.MustInvoke[zerolog.Logger](i)
-	config := do.MustInvoke[Config](i)
+	config := do.MustInvoke[common.Config](i)
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     config.RedisConfig.Address, // TODO

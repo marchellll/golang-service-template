@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"golang-service-template/internal/common"
 
 	mysql_drv "github.com/go-sql-driver/mysql"
 	"github.com/samber/do"
@@ -13,20 +14,12 @@ import (
 	gormzerolog "github.com/vitaliy-art/gorm-zerolog"
 )
 
-type DbConfig struct {
-	Dialect string `validate:"required"`
-	Host    string `validate:"required"`
-	Port    string `validate:"required"`
-	DBName  string `validate:"required"`
 
-	Username string `validate:"required"`
-	Password string `validate:"required"`
-}
 
 func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 
 	logger := do.MustInvoke[zerolog.Logger](i)
-	config := do.MustInvoke[Config](i)
+	config := do.MustInvoke[common.Config](i)
 
 	var dialector gorm.Dialector
 

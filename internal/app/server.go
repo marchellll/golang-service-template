@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"golang-service-template/internal/common"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -13,7 +14,7 @@ func RunNewServer(
 	injector *do.Injector,
 ) func(ctx context.Context) error {
 	logger := do.MustInvoke[zerolog.Logger](injector)
-	config := do.MustInvoke[Config](injector)
+	config := do.MustInvoke[common.Config](injector)
 
 	e := echo.New()
 

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"golang-service-template/internal/common"
 	"golang-service-template/internal/handler"
 	"golang-service-template/internal/service"
 	"io"
@@ -18,7 +19,7 @@ type Container struct {
 	Logger zerolog.Logger
 
 	// configs
-	Config Config
+	Config common.Config
 
 	// services
 	HealthService service.HealthService

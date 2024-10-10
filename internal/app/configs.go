@@ -1,6 +1,8 @@
 package app
 
 import (
+	"golang-service-template/internal/common"
+
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
@@ -9,14 +11,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Config struct {
-	Host        string
-	Port        string `validate:"required"`
-	DbConfig    `validate:"required"`
-	RedisConfig `validate:"required"`
-}
 
-func NewConfig(getenv func(string) string) Config {
+func NewConfig(getenv func(string) string) common.Config {
 	validate := validator.New()
 
 	english := en.New()
@@ -24,10 +20,10 @@ func NewConfig(getenv func(string) string) Config {
 	trans, _ := uni.GetTranslator("en")
 	_ = en_translations.RegisterDefaultTranslations(validate, trans)
 
-	_config := Config{
+	_config := common.Config{
 		Host: getenv("HOST"),
 		Port: getenv("PORT"),
-		DbConfig: DbConfig{
+		DbConfig: common.DbConfig{
 			Dialect:  getenv("DB_DIALECT"),
 			Host:     getenv("DB_HOST"),
 			Port:     getenv("DB_PORT"),
@@ -35,7 +31,7 @@ func NewConfig(getenv func(string) string) Config {
 			Username: getenv("DB_USERNAME"),
 			Password: getenv("DB_PASSWORD"),
 		},
-		RedisConfig: RedisConfig{
+		RedisConfig: common.RedisConfig{
 			Address: getenv("REDIS_ADDRESS"),
 		},
 	}
