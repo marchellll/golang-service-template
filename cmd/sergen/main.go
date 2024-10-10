@@ -43,13 +43,15 @@ func main() {
 	die(err)
 	defer serviceFile.Close()
 
-	serviceTemplate.Execute(serviceFile, data)
+	err = serviceTemplate.Execute(serviceFile, data)
+	die(err)
 
 	handlerFile, err := os.Create("internal/handler/"+ strings.ToLower(data.EntityName) +".go")
 	die(err)
 	defer handlerFile.Close()
 
-	controllerTemplate.Execute(handlerFile, data)
+	err = controllerTemplate.Execute(handlerFile, data)
+	die(err)
 
 
 	routesFile, err := os.OpenFile("internal/app/routes.go", os.O_APPEND|os.O_WRONLY, 0644)
@@ -57,7 +59,8 @@ func main() {
 	defer routesFile.Close()
 
 
-	routeTemplate.Execute(routesFile, data)
+	err = routeTemplate.Execute(routesFile, data)
+	die(err)
 
 
 	diFile, err := os.OpenFile("internal/app/di.go", os.O_APPEND|os.O_WRONLY, 0644)
@@ -65,7 +68,8 @@ func main() {
 	defer routesFile.Close()
 
 
-	diTemplate.Execute(diFile, data)
+	err = diTemplate.Execute(diFile, data)
+	die(err)
 }
 
 func die(err error) {
