@@ -5,7 +5,7 @@ type Meta map[string]any
 type Response struct {
 	Message string `json:"message"`
 	Meta    Meta   `json:"meta"`
-	Data 	  any    `json:"data"`
+	Data    any    `json:"data"`
 }
 
 func NewResponse() *Response {

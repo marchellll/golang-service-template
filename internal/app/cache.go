@@ -9,7 +9,6 @@ import (
 	"github.com/samber/do"
 )
 
-
 func ConnectRedis(i *do.Injector) (*redis.Client, error) {
 	logger := do.MustInvoke[zerolog.Logger](i)
 	config := do.MustInvoke[common.Config](i)

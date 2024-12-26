@@ -19,6 +19,7 @@ type TaskService interface {
 	Create(ctx context.Context, task model.Task) (*model.Task, error)
 	Get(ctx context.Context, id string) (*model.Task, error)
 	Find(ctx context.Context) ([]*model.Task, error)
+	FindByUserId(ctx context.Context, userId string) ([]*model.Task, error)
 	Update(ctx context.Context, id string, entity map[string]any) (*model.Task, error)
 	Delete(ctx context.Context, id string) error
 }
@@ -72,9 +73,18 @@ func (s *taskService) Get(ctx context.Context, id string) (*model.Task, error) {
 
 // GetAll implements TaskService.
 func (s *taskService) Find(ctx context.Context) ([]*model.Task, error) {
-	// var entities []model.Task
-
 	entities, err := s.q.WithContext(ctx).Task.Find()
+
+	if err != nil {
+		return nil, errz.NewPrettyError(http.StatusInternalServerError, "internal_server_error", "failed to get entities", err)
+	}
+
+	return entities, nil
+}
+
+// GetAll implements TaskService.
+func (s *taskService) FindByUserId(ctx context.Context, userId string) ([]*model.Task, error) {
+	entities, err := s.q.WithContext(ctx).Task.Where(s.q.Task.CreatedBy.Eq(userId)).Find()
 
 	if err != nil {
 		return nil, errz.NewPrettyError(http.StatusInternalServerError, "internal_server_error", "failed to get entities", err)

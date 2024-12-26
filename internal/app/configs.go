@@ -11,7 +11,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-
 func NewConfig(getenv func(string) string) common.Config {
 	validate := validator.New()
 

@@ -14,8 +14,6 @@ import (
 	gormzerolog "github.com/vitaliy-art/gorm-zerolog"
 )
 
-
-
 func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 
 	logger := do.MustInvoke[zerolog.Logger](i)
@@ -30,6 +28,8 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 		dbConfig.User = config.DbConfig.Username
 		dbConfig.Passwd = config.DbConfig.Password
 		dbConfig.Net = "tcp"
+		// https://stackoverflow.com/questions/29341590/how-to-parse-time-from-database/29343013#29343013
+		dbConfig.ParseTime = true
 
 		dialector = mysql.Open(dbConfig.FormatDSN())
 	}

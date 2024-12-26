@@ -1,0 +1,26 @@
+meta {
+  name: get all tasks by user id
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{host_url}}/secured/tasks
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTk0MDQxOS1hN2JlLTc3MDQtYjQ3YS0zNmI3ZjYyYmQ4NGMiLCJuYW1lIjoiSm9obiBEb2UiLCJpYXQiOjE1MTYyMzkwMjIsImF1ZCI6ImF1ZGllbmNlIiwiaXNzIjoiaHR0cDovL2V4YW1wbGUuY29tLyJ9.Dg-CkjeeAx2p9e-5fpvJ08B3NdGl5NutN4h6RvO7cew
+}
+
+vars:post-response {
+  data.tasks: res.body.data
+}
+
+script:post-response {
+  function onResponse(res) {
+    let data = res.getBody();
+    let tasks = bru.setEnvVar("data.tasks", data.data.tasks);
+  }
+}

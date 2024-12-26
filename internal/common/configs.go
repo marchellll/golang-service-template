@@ -1,14 +1,14 @@
 package common
 
-type RedisConfig struct {
-	Address string `validate:"required"`
-}
-
 type Config struct {
 	Host        string
 	Port        string `validate:"required"`
 	DbConfig    `validate:"required"`
 	RedisConfig `validate:"required"`
+}
+
+type RedisConfig struct {
+	Address string `validate:"required"`
 }
 
 type DbConfig struct {

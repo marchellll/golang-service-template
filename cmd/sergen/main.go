@@ -10,8 +10,6 @@ import (
 	"unicode/utf8"
 )
 
-
-
 func main() {
 
 	ModuleName := flag.String("ModuleName", "github.com/marchellll/something", "this is the main module of the project")
@@ -20,17 +18,16 @@ func main() {
 	flag.Parse()
 
 	data := struct {
-		ModuleName  string
-		EntityName  string
-		EntityNameLow	string
-		EntityNamePlural	string
+		ModuleName          string
+		EntityName          string
+		EntityNameLow       string
+		EntityNamePlural    string
 		EntityNameLowPlural string
 	}{
-		ModuleName:  *ModuleName,
-		EntityName:  *EntityName,
-		EntityNamePlural:  *EntityNamePlural,
+		ModuleName:       *ModuleName,
+		EntityName:       *EntityName,
+		EntityNamePlural: *EntityNamePlural,
 	}
-
 
 	if data.EntityNamePlural == "" {
 		data.EntityNamePlural = data.EntityName + "s"
@@ -38,35 +35,30 @@ func main() {
 	data.EntityNameLow = firstToLower(data.EntityName)
 	data.EntityNameLowPlural = firstToLower(data.EntityNamePlural)
 
-
-	serviceFile, err := os.Create("internal/service/"+ strings.ToLower(data.EntityName) +".go")
+	serviceFile, err := os.Create("internal/service/" + strings.ToLower(data.EntityName) + ".go")
 	die(err)
 	defer serviceFile.Close()
 
 	err = serviceTemplate.Execute(serviceFile, data)
 	die(err)
 
-	handlerFile, err := os.Create("internal/handler/"+ strings.ToLower(data.EntityName) +".go")
+	handlerFile, err := os.Create("internal/handler/" + strings.ToLower(data.EntityName) + ".go")
 	die(err)
 	defer handlerFile.Close()
 
 	err = controllerTemplate.Execute(handlerFile, data)
 	die(err)
 
-
 	routesFile, err := os.OpenFile("internal/app/routes.go", os.O_APPEND|os.O_WRONLY, 0644)
 	die(err)
 	defer routesFile.Close()
 
-
 	err = routeTemplate.Execute(routesFile, data)
 	die(err)
-
 
 	diFile, err := os.OpenFile("internal/app/di.go", os.O_APPEND|os.O_WRONLY, 0644)
 	die(err)
 	defer routesFile.Close()
-
 
 	err = diTemplate.Execute(diFile, data)
 	die(err)
@@ -78,15 +70,14 @@ func die(err error) {
 	}
 }
 
-
 func firstToLower(s string) string {
 	r, size := utf8.DecodeRuneInString(s)
 	if r == utf8.RuneError && size <= 1 {
-			return s
+		return s
 	}
 	lc := unicode.ToLower(r)
 	if r == lc {
-			return s
+		return s
 	}
 	return string(lc) + s[size:]
 }
@@ -131,7 +122,7 @@ func (tc *{{ .EntityNameLow }}Controller) Create() echo.HandlerFunc {
 	_ = en_translations.RegisterDefaultTranslations(validate, trans)
 
 	type {{ .EntityNameLow }} struct {
-		Description string `+"`"+`json:"description" validate:"required"`+"`"+`
+		Description string ` + "`" + `json:"description" validate:"required"` + "`" + `
 	}
 
 	return func(c echo.Context) error {
@@ -224,7 +215,7 @@ func (tc *{{ .EntityNameLow }}Controller) Update() echo.HandlerFunc {
 	_ = en_translations.RegisterDefaultTranslations(validate, trans)
 
 	type {{ .EntityNameLow }} struct {
-		Description string `+"`"+`json:"description" validate:"required"`+"`"+`
+		Description string ` + "`" + `json:"description" validate:"required"` + "`" + `
 	}
 
 	return func(c echo.Context) error {
@@ -298,8 +289,7 @@ func New{{ .EntityName }}Controller(i *do.Injector) ({{ .EntityName }}Controller
 	}, nil
 }
 
-`));
-
+`))
 
 var serviceTemplate = template.Must(template.New("").Parse(`package service
 
@@ -413,7 +403,6 @@ func (s *{{ .EntityNameLow }}Service) Delete(ctx context.Context, id string) err
 
 `))
 
-
 var routeTemplate = template.Must(template.New("").Parse(`
 add{{ .EntityName }}Routes(injector, e) // FIXME: move me
 func add{{ .EntityName }}Routes(injector *do.Injector, e *echo.Echo) {
@@ -426,8 +415,7 @@ func add{{ .EntityName }}Routes(injector *do.Injector, e *echo.Echo) {
 	group.DELETE("/:id", do.MustInvoke[handler.{{ .EntityName }}Controller](injector).Delete())
 }
 
-`));
-
+`))
 
 var diTemplate = template.Must(template.New("").Parse(`
 // FIXME: move me
@@ -437,4 +425,4 @@ do.Provide(injector, service.New{{ .EntityName }}Service)
 // handler
 do.Provide(injector, handler.New{{ .EntityName }}Controller)
 
-`));
+`))

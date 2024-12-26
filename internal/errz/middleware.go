@@ -36,7 +36,7 @@ func ErrzMiddleware() echo.MiddlewareFunc {
 					"http_status_code": http.StatusInternalServerError,
 				},
 				"error": map[string]any{
-					"code": "ttts",
+					"code":    "ttts",
 					"message": "Tetap Tenang, Tetap Semangat",
 				},
 			})

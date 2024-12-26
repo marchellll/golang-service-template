@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"golang-service-template/internal/dao/model"
+	"golang-service-template/internal/middleware"
 	"golang-service-template/internal/service"
 
 	"github.com/go-playground/locales/en"
@@ -18,6 +19,7 @@ import (
 type TaskController interface {
 	Create() echo.HandlerFunc
 	Find() echo.HandlerFunc
+	FindByUserId() echo.HandlerFunc
 	GetById() echo.HandlerFunc
 	Update() echo.HandlerFunc
 	Delete() echo.HandlerFunc
@@ -78,6 +80,30 @@ func (t *taskController) Find() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		tasks, err := t.taskService.Find(c.Request().Context())
+
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(
+			http.StatusOK,
+			NewResponse().
+				AddMeta("total", len(tasks)).
+				AddMeta("status", http.StatusOK).
+				SetData(tasks),
+		)
+	}
+}
+
+// Get implements TaskController.
+func (t *taskController) FindByUserId() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		userId := c.Get(middleware.ContextKeyUserId)
+
+		userIdStr, _ := userId.(string)
+
+		tasks, err := t.taskService.FindByUserId(c.Request().Context(), userIdStr)
 
 		if err != nil {
 			return err

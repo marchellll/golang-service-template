@@ -3,6 +3,7 @@ A template to clone when building new service in Go
 
 this should be a good starting point for building a new service in Go for small projects. It includes:
 - http server
+- (Dependency Injection)[github.com/samber/do]
 - db connection
 - redis connection
 - logging
@@ -26,8 +27,13 @@ docker run -v ./migration/migrations:/migrations  --rm migrate/migrate create -e
 # apply the migration
 docker run --rm -v .//migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "postgres://the_service_user:the_service_password@localhost:5432/the_service_database?sslmode=disable" up
 
+## or for mysql
+
+docker run --rm -v .//migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "mysql://the_service_user:the_service_password@tcp(localhost:3306)/the_service_database" up
+
 
 # generate models and fluent query
+# go install gorm.io/gen/tools/gentool@latest
 gentool -dsn "host=localhost user=the_service_user password=the_service_password dbname=the_service_database port=5432 sslmode=disable" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -db postgres
 
 ```
@@ -81,6 +87,13 @@ After Making Migpation and Generating Models, we can use the `sergen` to generat
 go run ./cmd/sergen -ModuleName "golang-service-template" -EntityName Goose -EntityNamePlural Geese
 ```
 
+That command will generate the CRUD for the `Goose` model. It will generate the following:
+- `internal/service/goose.go`
+- `internal/handler/goose.go`
+- add endpoints to `internal/app/routes.go`
+- register dependensy in `internal/app/di.go`
+
+Of course, we can manually create the CRUD, but this is a good starting point.
 
 ## To run in docker
 

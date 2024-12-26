@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/samber/do"
 
+	"golang-service-template/internal/common"
 	"golang-service-template/internal/errz"
 	"golang-service-template/internal/handler"
 	"golang-service-template/internal/middleware"
@@ -57,4 +58,13 @@ func addTaskRoutes(injector *do.Injector, e *echo.Echo) {
 	taskGroup.GET("/:id", do.MustInvoke[handler.TaskController](injector).GetById())
 	taskGroup.PATCH("/:id", do.MustInvoke[handler.TaskController](injector).Update())
 	taskGroup.DELETE("/:id", do.MustInvoke[handler.TaskController](injector).Delete())
+
+	securedTaskGroup := e.Group("/secured/tasks")
+	securedTaskGroup.Use(middleware.ValidateJWTMiddleware(
+		do.MustInvoke[common.Config](injector),
+		do.MustInvoke[zerolog.Logger](injector),
+	))
+
+	securedTaskGroup.GET("", do.MustInvoke[handler.TaskController](injector).FindByUserId())
+
 }
