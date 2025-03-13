@@ -1,8 +1,10 @@
 module golang-service-template
 
 go 1.22.3
+toolchain go1.23.7
 
 require (
+	github.com/auth0/go-jwt-middleware/v2 v2.2.2
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.12.0
@@ -13,7 +15,6 @@ require (
 )
 
 require (
-	github.com/auth0/go-jwt-middleware/v2 v2.2.2 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
@@ -57,11 +58,11 @@ require (
 	github.com/samber/do v1.6.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/crypto v0.35.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
