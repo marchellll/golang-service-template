@@ -196,3 +196,6 @@ bru run --env local
 - cron on kube
 
 - github action
+
+- test
+- 
