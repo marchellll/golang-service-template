@@ -1,9 +1,11 @@
 # golang-service-template
+
 A template to clone when building new service in Go
 
 this should be a good starting point for building a new service in Go for small projects. It includes:
+
 - http server
-- (Dependency Injection)[github.com/samber/do]
+- [Dependency Injection](github.com/samber/do)
 - db connection
 - redis connection
 - logging
@@ -13,23 +15,20 @@ this should be a good starting point for building a new service in Go for small 
 - Simple User Auth
 - Simple RBAC
 
-
 ## DB migrations
 
-
 ### TLDR
-
 
 ```sh
 # create a manual new migration
 docker run -v ./migration/migrations:/migrations  --rm migrate/migrate create -ext sql -dir migrations create_users_table
 
 # apply the migration
-docker run --rm -v .//migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "postgres://the_service_user:the_service_password@localhost:5432/the_service_database?sslmode=disable" up
+docker run --rm -v ./migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "postgres://the_service_user:the_service_password@localhost:5432/the_service_database?sslmode=disable" up
 
 ## or for mysql
 
-docker run --rm -v .//migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "mysql://the_service_user:the_service_password@tcp(localhost:3306)/the_service_database" up
+docker run --rm -v ./migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "mysql://the_service_user:the_service_password@tcp(localhost:3306)/the_service_database?charset=utf8mb4&parseTime=True" up
 
 
 # generate models and fluent query
@@ -40,9 +39,7 @@ gentool -dsn "host=localhost user=the_service_user password=the_service_password
 
 ### Long version
 
-
-We can apply the migration using `go-migrate` (https://github.com/golang-migrate/migrate).
-
+We can apply the migration using `go-migrate` (<https://github.com/golang-migrate/migrate>).
 
 ```sh
 # create a manual new migration
@@ -68,8 +65,7 @@ docker run -v ./migration/migrations:/migrations --network="host" migrate/migrat
 
 ```
 
-
-After that we use GORMS's GEN to generate the models and fluent query from the database. https://gorm.io/gen/gen_tool.html
+After that we use GORMS's GEN to generate the models and fluent query from the database. <https://gorm.io/gen/gen_tool.html>
 
 ```sh
 go install gorm.io/gen/tools/gentool@latest
@@ -88,6 +84,7 @@ go run ./cmd/sergen -ModuleName "golang-service-template" -EntityName Goose -Ent
 ```
 
 That command will generate the CRUD for the `Goose` model. It will generate the following:
+
 - `internal/service/goose.go`
 - `internal/handler/goose.go`
 - add endpoints to `internal/app/routes.go`
@@ -109,7 +106,6 @@ DB_HOST=postgres # this one for docker-compose
 # DB_HOST=localhost # this one for non-docker
 ```
 
-
 ```sh
 # run all the dependencies and the service
 docker compose --profile dev up
@@ -121,7 +117,6 @@ docker compose up
 docker run -p 8080:8080 --env-file .env --rm -it $(docker build -q .)
 ```
 
-
 ## To run in local
 
 Make sure to change `DB_HOST` to `localhost` (and any other host) in `.env` file
@@ -130,7 +125,6 @@ Make sure to change `DB_HOST` to `localhost` (and any other host) in `.env` file
 # dont forget the env file
 cp .env.example .env
 ```
-
 
 ```bash
 # run the service natively
@@ -162,11 +156,10 @@ docker run --rm -v $(pwd):/app -v ~/.cache/golangci-lint/v1.61.0:/root/.cache -w
 
 we can use Bruno to test the API
 
-- https://www.usebruno.com/manifesto
-- https://www.usebruno.com/blog/the-saas-dilemma
+- <https://www.usebruno.com/manifesto>
+- <https://www.usebruno.com/blog/the-saas-dilemma>
 
-
-- run a collection: https://docs.usebruno.com/get-started/bruno-basics/run-a-collection
+- run a collection: <https://docs.usebruno.com/get-started/bruno-basics/run-a-collection>
 
 We can use the cli
 
@@ -175,19 +168,17 @@ npm install -g @usebruno/cli
 ```
 
 Then
+
 ```sh
 cd apitest
 bru run --env local
 ```
 
-
 ## Ref
 
-https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/
-
+<https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/>
 
 ## TODO
-
 
 - playwright
 - ut
@@ -196,7 +187,6 @@ https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-yea
 
 - websocket
 - grpc
-
 
 - tracing
 - metrics
