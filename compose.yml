@@ -3,13 +3,13 @@ services:
     profiles: [dev]
     image: cosmtrek/air
     # working_dir value has to be the same of mapped volume
-    working_dir: /app
+    working_dir: /build
     ports:
       - "8080:8080"
     env_file:
       - .env
     volumes:
-      - .:/app
+      - .:/build
     depends_on:
       - redis
       - mysql

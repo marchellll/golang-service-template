@@ -13,7 +13,19 @@ this should be a good starting point for building a new service in Go for small 
 
 - Simple CRUD of Tasks
 - Simple User Auth
-- Simple RBAC
+- Simple rbac
+
+## Pre-Commit
+
+```sh
+
+go fmt $(go list ./... | grep -v /vendor/)
+go vet $(go list ./... | grep -v /vendor/)
+go test -coverprofile=coverage.out $(go list ./... | grep -v /vendor/) ;    go tool cover -html=coverage.out
+
+docker run -t --rm -v $(pwd):/app -v ~/.cache/golangci-lint/v1.62.2:/root/.cache -w /app golangci/golangci-lint:v1.62.2 golangci-lint run -v --timeout 10m
+
+```
 
 ## DB migrations
 
@@ -39,7 +51,7 @@ gentool -dsn "host=localhost user=the_service_user password=the_service_password
 
 ### Long version
 
-We can apply the migration using `go-migrate` (<https://github.com/golang-migrate/migrate>).
+We can apply the migration using `go-migrate` (https://github.com/golang-migrate/migrate).
 
 ```sh
 # create a manual new migration
@@ -65,7 +77,7 @@ docker run -v ./migration/migrations:/migrations --network="host" migrate/migrat
 
 ```
 
-After that we use GORMS's GEN to generate the models and fluent query from the database. <https://gorm.io/gen/gen_tool.html>
+After that we use GORMS's GEN to generate the models and fluent query from the database. https://gorm.io/gen/gen_tool.html
 
 ```sh
 go install gorm.io/gen/tools/gentool@latest
@@ -76,7 +88,7 @@ gentool -dsn "host=localhost user=the_service_user password=the_service_password
 
 ## Quick Crud Generator
 
-After Making Migpation and Generating Models, we can use the `sergen` to generate the CRUD for the model.
+After Making Migration and Generating Models, we can use the `sergen` to generate the CRUD for the model.
 
 ```sh
 # run from the root of the project
@@ -185,7 +197,10 @@ bru run --env local
 
 - terraform
 
-- websocket
+- temporal
+- queue
+- socket.io
+
 - grpc
 
 - tracing
