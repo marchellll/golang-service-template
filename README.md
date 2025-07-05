@@ -71,20 +71,22 @@ docker run -v ./migration/migrations:/migrations --network="host" migrate/migrat
 # rollback the migration
 # this must always be tested in local before running anywhere else
 docker run -v ./migration/migrations:/migrations --network="host" migrate/migrate -path=/migrations/ -database "postgres://the_service_user:the_service_password@localhost:5432/the_service_database?sslmode=disable" down 1
-
-
-
-
 ```
 
-After that we use GORMS's GEN to generate the models and fluent query from the database. https://gorm.io/gen/gen_tool.html
+## Add DAO Model from Database
 
-```sh
-go install gorm.io/gen/tools/gentool@latest
+### Install Gorm Gentool
+https://gorm.io/gen/gen_tool.html#Install
 
-gentool -dsn "the_service_user:the_service_password@tcp(127.0.0.1:3306)/the_service_database" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -db mysql
-gentool -dsn "host=localhost user=the_service_user password=the_service_password dbname=the_service_database port=5432 sslmode=disable" -outPath "./internal/dao/query"  -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -db postgres
+### Execute command
+
 ```
+gentool -c gentool.yaml
+```
+
+see [./gentool.yaml](./gentool.yaml)
+1. Change DB dialect user, password and database name
+3. Change tables params to the table name
 
 ## Quick Crud Generator
 
