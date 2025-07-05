@@ -156,15 +156,55 @@ go build -o ./dist/run ./cmd/server
 ./dist/run
 ```
 
-## golangci-lint
+## Unit Test
 
-RUN IT
+install [ginkgo](https://onsi.github.io/ginkgo/#getting-started). A BDD testing framework for Go.
 
 ```sh
-docker run --rm -v $(pwd):/app -v ~/.cache/golangci-lint/v1.61.0:/root/.cache -w /app golangci/golangci-lint:v1.61.0 golangci-lint run -v
+go get github.com/onsi/ginkgo/v2/ginkgo
+go install github.com/onsi/ginkgo/v2/ginkgo
+go get github.com/onsi/gomega/...
 ```
 
-## To test the service
+you can run the test using `go test ./...` like usual or using ginkgo
+
+```sh
+go test ./...`
+
+# or
+ginkgo  ./...
+```
+
+to bootstrap the package to use ginko, you can use `ginkgo bootstrap`. (Only need to run once per package)
+
+```sh
+# cd to your package
+cd repository
+# bootstrap the package
+ginkgo bootstrap
+```
+
+to generate test file, you can use `ginkgo generate [file_name]`
+
+```sh
+# cd to your package
+cd repository
+# generate test file
+ginkgo generate loyalty_card
+```
+
+## Generate Mock
+
+We are using [vektra.github.io/mockery](https://vektra.github.io/mockery/latest/) to generate mock files for testing using [github.com/stretchr/testify](https://github.com/stretchr/testify).
+
+Install mockery by running `brew install mockery`
+
+After creating a new interface  (a new repository/service), run `mockery` to generate the mock file for the new interfaces.
+
+[github.com/stretchr/testify](https://github.com/stretchr/testify) main advantage over the other mocking is allowing expectation using `mock.Anything`
+
+
+## Integration Test
 
 we can use Bruno to test the API
 
@@ -192,19 +232,17 @@ bru run --env local
 
 ## TODO
 
-- playwright
 - ut
 
-- terraform
-
+- socket.io
 - temporal
 - queue
-- socket.io
-
-- grpc
 
 - tracing
 - metrics
 - cron on kube
 
+- playwright
+- grpc
+- terraform
 - github action
