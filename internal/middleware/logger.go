@@ -96,6 +96,12 @@ func truncateBody(body string, contentType string) string {
 func LoggerMiddleware(logger zerolog.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// Skip logging for health check endpoints
+			path := c.Path()
+			if path == "/healthz" || path == "/readyz" {
+				return next(c)
+			}
+
 			req := c.Request()
 			res := c.Response()
 

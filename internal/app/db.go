@@ -15,8 +15,6 @@ import (
 	gormzerolog "github.com/vitaliy-art/gorm-zerolog"
 )
 
-
-
 func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 
 	logger := do.MustInvoke[zerolog.Logger](i)

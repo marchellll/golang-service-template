@@ -15,6 +15,12 @@ import (
 func TelemetryMiddleware(injector *do.Injector) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// Skip telemetry for health check endpoints
+			path := c.Path()
+			if path == "/healthz" || path == "/readyz" {
+				return next(c)
+			}
+
 			// Get telemetry from dependency injection
 			tel, err := do.Invoke[*telemetry.Telemetry](injector)
 			if err != nil {
@@ -41,7 +47,7 @@ func TelemetryMiddleware(injector *do.Injector) echo.MiddlewareFunc {
 
 			// Collect request information
 			method := c.Request().Method
-			path := c.Path()
+			path = c.Path()
 			status := strconv.Itoa(c.Response().Status)
 
 			// Record metrics (automatically handles enabled/disabled)
