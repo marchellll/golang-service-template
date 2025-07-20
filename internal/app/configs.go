@@ -2,6 +2,7 @@ package app
 
 import (
 	"golang-service-template/internal/common"
+	"strconv"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -19,9 +20,21 @@ func NewConfig(getenv func(string) string) common.Config {
 	trans, _ := uni.GetTranslator("en") // en should be get from header
 	_ = en_translations.RegisterDefaultTranslations(validate, trans)
 
+	// Parse HealthcheckTimeoutSeconds with default value
+	healthcheckTimeout := 55 // default to 55 seconds
+	if timeoutStr := getenv("HEALTHCHECK_TIMEOUT_SECONDS"); timeoutStr != "" {
+		if parsed, err := strconv.Atoi(timeoutStr); err == nil {
+			healthcheckTimeout = parsed
+		} else {
+			log.Warn().Str("value", timeoutStr).Msg("invalid HEALTHCHECK_TIMEOUT_SECONDS, using default 55")
+		}
+	}
+
 	_config := common.Config{
-		Host:           getenv("HOST"),
-		Port:           getenv("PORT"),
+		ServiceName:               getenv("SERVICE_NAME"),
+		Host:                      getenv("HOST"),
+		Port:                      getenv("PORT"),
+		HealthcheckTimeoutSeconds: healthcheckTimeout,
 
 		DbConfig: common.DbConfig{
 			Dialect:  getenv("DB_DIALECT"),

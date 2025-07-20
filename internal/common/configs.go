@@ -1,10 +1,12 @@
 package common
 
 type Config struct {
-	Host        string
-	Port        string `validate:"required"`
-	DbConfig    `validate:"required"`
-	RedisConfig `validate:"required"`
+	ServiceName                string `validate:"required"`
+	Host                       string
+	Port                       string `validate:"required"`
+	HealthcheckTimeoutSeconds  int    `validate:"min=1"`
+	DbConfig                   `validate:"required"`
+	RedisConfig                `validate:"required"`
 }
 
 type RedisConfig struct {
