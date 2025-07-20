@@ -12,7 +12,8 @@ import (
 )
 
 type HealthService interface {
-	Healthcheck(ctx context.Context) error
+	LivenessCheck(ctx context.Context) error
+	ReadinessCheck(ctx context.Context) error
 }
 
 type healthService struct {
@@ -27,7 +28,7 @@ func NewHealthService(i *do.Injector) (HealthService, error) {
 	}, nil
 }
 
-func (service *healthService) Healthcheck(ctx context.Context) error {
+func (service *healthService) ReadinessCheck(ctx context.Context) error {
 
 	status := service.redis.Ping(ctx)
 	if status.Err() != nil {
@@ -56,5 +57,13 @@ func (service *healthService) Healthcheck(ctx context.Context) error {
 
 	service.redis.SetEx(ctx, "healthcheck", "OK", time.Second*30)
 
+	return nil
+}
+
+// LivenessCheck performs a basic liveness check - just returns current time (very lightweight)
+// This indicates the application is alive and responding
+func (service *healthService) LivenessCheck(ctx context.Context) error {
+	// Simply return nil - the fact that we can execute this function means the app is alive
+	// The handler will include the current timestamp in the response
 	return nil
 }

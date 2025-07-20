@@ -1,7 +1,7 @@
 services:
   the-service:
     profiles: [dev]
-    image: cosmtrek/air
+    image: cosmtrek/air:v1.62.0
     # working_dir value has to be the same of mapped volume
     working_dir: /build
     ports:

@@ -16,12 +16,13 @@ func NewConfig(getenv func(string) string) common.Config {
 
 	english := en.New()
 	uni := ut.New(english, english)
-	trans, _ := uni.GetTranslator("en")
+	trans, _ := uni.GetTranslator("en") // en should be get from header
 	_ = en_translations.RegisterDefaultTranslations(validate, trans)
 
 	_config := common.Config{
-		Host: getenv("HOST"),
-		Port: getenv("PORT"),
+		Host:           getenv("HOST"),
+		Port:           getenv("PORT"),
+
 		DbConfig: common.DbConfig{
 			Dialect:  getenv("DB_DIALECT"),
 			Host:     getenv("DB_HOST"),
@@ -39,14 +40,13 @@ func NewConfig(getenv func(string) string) common.Config {
 
 	if err == nil {
 		log.Trace().Any("config", _config.DbConfig).Msg("config validated")
-
 		return _config
 	}
 
 	errs := err.(validator.ValidationErrors)
-	log.Panic().Err(err).Any("missing config", errs.Translate(trans)).Msg("failed to validate config: ")
+	log.Panic().Err(err).Any("missing config", errs.Translate(trans)).Msg("failed to validate config")
 
-	// log.Printf("config: %+v", config)
-
-	return _config
+	// This line is never reached due to log.Panic() above, but Go requires a return statement
+	// for the function signature. In practice, the program will terminate at log.Panic().
+	return common.Config{}
 }

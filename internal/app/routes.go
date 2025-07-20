@@ -23,9 +23,11 @@ func addRoutes(
 
 	// global middlewares
 	e.Use(echo_middleware.Recover())
-	e.Use(errz.ErrzMiddleware())
+	e.Use(middleware.RequestIDMiddleware()) // First - generate request ID for tracing
+	e.Use(middleware.LoggerMiddleware(logger)) // Second - logger should capture the request ID
+	e.Use(errz.ErrorRendererMiddleware())
+	e.Use(middleware.ValidatorMiddleware())    // Third - set up request validation
 	e.Use(echo_middleware.CORS())
-	e.Use(middleware.LoggerMiddleware(logger))
 
 	// routes
 	addHealthzRoutes(injector, e)

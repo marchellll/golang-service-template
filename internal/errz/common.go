@@ -11,6 +11,7 @@ type PrettyError struct {
 	HttpStatusCode int
 	Code           string
 	Message        string
+	Details        map[string]string // Optional additional details
 	cause          error
 
 	// TODO: add error details
@@ -42,6 +43,17 @@ func NewPrettyError(httpStatusCode int, code, message string, cause error) Prett
 		HttpStatusCode: httpStatusCode,
 		Code:           code,
 		Message:        message,
+		cause:          withstack.WithStackDepth(cause, 1),
+	}
+}
+
+func NewPrettyErrorDetail(httpStatusCode int, code, message string, cause error, details map[string]string) PrettyError {
+
+	return PrettyError{
+		HttpStatusCode: httpStatusCode,
+		Code:           code,
+		Message:        message,
+		Details:        details,
 		cause:          withstack.WithStackDepth(cause, 1),
 	}
 }

@@ -14,6 +14,8 @@ import (
 	gormzerolog "github.com/vitaliy-art/gorm-zerolog"
 )
 
+
+
 func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 
 	logger := do.MustInvoke[zerolog.Logger](i)
@@ -21,7 +23,8 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 
 	var dialector gorm.Dialector
 
-	if config.DbConfig.Dialect == "mysql" {
+	switch config.DbConfig.Dialect {
+	case "mysql":
 		dbConfig := mysql_drv.NewConfig()
 		dbConfig.Addr = config.DbConfig.Host + ":" + config.DbConfig.Port
 		dbConfig.DBName = config.DbConfig.DBName
@@ -32,14 +35,16 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 		dbConfig.ParseTime = true
 
 		dialector = mysql.Open(dbConfig.FormatDSN())
-	}
-	if config.DbConfig.Dialect == "postgres" {
+	case "postgres":
 		dsn := fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			config.DbConfig.Host, config.DbConfig.Port, config.DbConfig.Username, config.DbConfig.Password, config.DbConfig.DBName,
 		)
 
 		dialector = postgres.Open(dsn)
+	default:
+		logger.Fatal().Str("dialect", config.DbConfig.Dialect).Msg("unsupported database dialect")
+		return nil, fmt.Errorf("unsupported database dialect: %s", config.DbConfig.Dialect)
 	}
 
 	gormDB, err := gorm.Open(dialector, &gorm.Config{

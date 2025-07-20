@@ -3,6 +3,7 @@ package handler
 import (
 	"golang-service-template/internal/service"
 	"net/http"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/samber/do"
@@ -30,65 +31,65 @@ func NewHealthzController(i *do.Injector) (HealthzController, error) {
 	}, nil
 }
 
-// Healthz method
+// GetHealthz - Liveness probe endpoint
+// This should be fast and lightweight, only checking if the app is alive
 func (controller *healthzController) GetHealthz() echo.HandlerFunc {
-	type req struct {
-		Message string `json:"message"`
+	type response struct {
+		Status    string `json:"status"`
+		Message   string `json:"message"`
+		Timestamp string `json:"timestamp"`
 	}
 
 	return func(c echo.Context) error {
-		body := new(req)
-
-		if err := c.Bind(body); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
-		err := controller.healthService.Healthcheck(c.Request().Context())
-
-		requestBody := string(body.Message)
-		message := "I am healthty 🫡. This is your echo: " + requestBody + "."
+		err := controller.healthService.LivenessCheck(c.Request().Context())
 
 		if err != nil {
-			message = err.Error()
+			resp := response{
+				Status:    "unhealthy",
+				Message:   "Liveness check failed: " + err.Error(),
+				Timestamp: time.Now().Format(time.RFC3339),
+			}
+			return c.JSON(http.StatusServiceUnavailable, resp)
 		}
 
-		resp := req{
-			Message: message,
+		resp := response{
+			Status:    "healthy",
+			Message:   "I am alive 🫡",
+			Timestamp: time.Now().Format(time.RFC3339),
 		}
 
 		return c.JSON(http.StatusOK, resp)
-
 	}
 }
 
-// Healthz method
+// GetReadyz - Readiness probe endpoint
+// This can be more thorough, checking if the app is ready to serve traffic
 func (controller *healthzController) GetReadyz() echo.HandlerFunc {
+	type response struct {
+		Status    string `json:"status"`
+		Message   string `json:"message"`
+		Timestamp string `json:"timestamp"`
+	}
+
 	return func(c echo.Context) error {
-		type req struct {
-			Message string `json:"message"`
-		}
-
-		body := new(req)
-
-		if err := c.Bind(body); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
-
-		err := controller.healthService.Healthcheck(c.Request().Context())
-
-		requestBody := string(body.Message)
-		message := "I am healthty 🫡. This is your echo: " + requestBody + "."
+		err := controller.healthService.ReadinessCheck(c.Request().Context())
 
 		if err != nil {
-			message = err.Error()
+			resp := response{
+				Status:    "not_ready",
+				Message:   "Readiness check failed: " + err.Error(),
+				Timestamp: time.Now().Format(time.RFC3339),
+			}
+			return c.JSON(http.StatusServiceUnavailable, resp)
 		}
 
-		resp := req{
-			Message: message,
+		resp := response{
+			Status:    "ready",
+			Message:   "I am ready to serve traffic 🚀",
+			Timestamp: time.Now().Format(time.RFC3339),
 		}
 
 		return c.JSON(http.StatusOK, resp)
-
 	}
 }
 
