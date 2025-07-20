@@ -191,8 +191,6 @@ bru run --env local
 
 - grpc
 
-- tracing
-- metrics
 - cron on kube
 
 - github action
