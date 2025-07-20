@@ -6,6 +6,7 @@ import (
 
 	mysql_drv "github.com/go-sql-driver/mysql"
 	"github.com/samber/do"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -54,6 +55,13 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("failed to connect to DB")
 	}
+
+	// Add OpenTelemetry instrumentation for database tracing
+	if err := gormDB.Use(otelgorm.NewPlugin()); err != nil {
+		logger.Fatal().Err(err).Msg("failed to add GORM OpenTelemetry plugin")
+	}
+
+	logger.Info().Msg("Database OpenTelemetry instrumentation enabled")
 
 	return gormDB, nil
 }

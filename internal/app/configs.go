@@ -30,6 +30,11 @@ func NewConfig(getenv func(string) string) common.Config {
 		}
 	}
 
+	// Parse telemetry boolean values with defaults
+	telemetryEnabled := getenv("TELEMETRY_ENABLED") == "true"
+	metricsEnabled := getenv("TELEMETRY_METRICS_ENABLED") == "true"
+	tracingEnabled := getenv("TELEMETRY_TRACING_ENABLED") == "true"
+
 	_config := common.Config{
 		ServiceName:               getenv("SERVICE_NAME"),
 		Host:                      getenv("HOST"),
@@ -46,6 +51,15 @@ func NewConfig(getenv func(string) string) common.Config {
 		},
 		RedisConfig: common.RedisConfig{
 			Address: getenv("REDIS_ADDRESS"),
+		},
+		TelemetryConfig: common.TelemetryConfig{
+			Enabled:        telemetryEnabled,
+			OtelEndpoint:   getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
+			ServiceName:    getenv("SERVICE_NAME"),
+			ServiceVersion: getenv("SERVICE_VERSION"),
+			Environment:    getenv("ENVIRONMENT"),
+			MetricsEnabled: metricsEnabled,
+			TracingEnabled: tracingEnabled,
 		},
 	}
 
