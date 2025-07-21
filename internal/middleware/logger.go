@@ -98,7 +98,7 @@ func LoggerMiddleware(logger zerolog.Logger) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			// Skip logging for health check endpoints
 			path := c.Path()
-			if path == "/healthz" || path == "/readyz" {
+			if path == "/healthz" || path == "/readyz" || path == "/metrics" {
 				return next(c)
 			}
 
@@ -127,6 +127,7 @@ func LoggerMiddleware(logger zerolog.Logger) echo.MiddlewareFunc {
 				Str("host", req.Host).
 				Str("remote_ip", c.RealIP()).
 				Str("user_agent", req.UserAgent()).
+				Str("content_type", req.Header.Get("Content-Type")).
 				Str("request_id", res.Header().Get(echo.HeaderXRequestID)).
 				Str("correlation_id", res.Header().Get(echo.HeaderXCorrelationID))
 
@@ -177,6 +178,8 @@ func LoggerMiddleware(logger zerolog.Logger) echo.MiddlewareFunc {
 				Str("host", req.Host).
 				Str("remote_ip", c.RealIP()).
 				Str("user_agent", req.UserAgent()).
+				Str("request_content_type", req.Header.Get("Content-Type")).
+				Str("response_content_type", res.Header().Get("Content-Type")).
 				Str("request_id", res.Header().Get(echo.HeaderXRequestID)).
 				Str("correlation_id", res.Header().Get(echo.HeaderXCorrelationID)).
 				Stack().

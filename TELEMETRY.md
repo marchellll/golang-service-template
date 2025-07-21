@@ -1,6 +1,5 @@
 # 🔍 Telemetry & Observability
-
-This service includes a comprehensive observability stack using **OpenTelemetry** for monitoring metrics and distributed tracing. The system integrates **Jaeger**, **Prometheus**, and **Grafana** using Docker Compose profiles for a complete observability solution.
+| **Grafana** | http://localhost:3001 | Dashboards & visualization | admin/admin123 |This servi- Go to http://localhost:3001 (admin/admin123)e includes a comprehensive observability stack using **OpenTelemetry** for monitoring metrics - **URL**: http://localhost:3001nd distributed tracing. The system integrates **Jaeger**, **Prometheus**, and **Grafana   - **Dashboards**: http://localhost:3001 (Grafana)* using Docker Compose profiles for a complete observability solution.
 
 ## 🚀 Quick Start
 
@@ -29,7 +28,7 @@ When running with observability profile:
 | **Metrics Endpoint** | http://localhost:8080/metrics | Raw Prometheus metrics | - |
 | **Prometheus** | http://localhost:9090 | Metrics collection & queries | - |
 | **Jaeger** | http://localhost:16686 | Distributed tracing | - |
-| **Grafana** | http://localhost:3000 | Dashboards & visualization | admin/admin123 |
+| **Grafana** | http://localhost:33000 | Dashboards & visualization | admin/admin123 |
 
 ## Configuration
 
@@ -125,7 +124,7 @@ curl -X POST http://localhost:8080/tasks -d '{"description":"test"}'
 - Click "Find Traces"
 
 **Dashboards in Grafana:**
-- Go to http://localhost:3000 (admin/admin123)
+- Go to http://localhost:33000 (admin/admin123)
 - Create dashboards using Prometheus data
 - Add Jaeger traces for correlation
 
@@ -265,7 +264,7 @@ histogram_quantile(0.99, task_create_duration_seconds_bucket)
 - **Endpoint**: `GET /metrics` on your service
 
 ### Grafana (Visualization)
-- **URL**: http://localhost:3000
+- **URL**: http://localhost:33000
 - **Credentials**: admin/admin123
 - **Purpose**: Dashboards and alerting
 - **Pre-configured**: Prometheus datasource included
@@ -384,6 +383,6 @@ For production, consider updating:
 4. **View results**:
    - **Traces**: http://localhost:16686 (Jaeger)
    - **Metrics**: http://localhost:9090 (Prometheus)
-   - **Dashboards**: http://localhost:3000 (Grafana)
+   - **Dashboards**: http://localhost:33000 (Grafana)
 
 The telemetry system gives you complete observability into your service with minimal code changes!

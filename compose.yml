@@ -103,7 +103,7 @@ services:
     profiles: [observability]
     image: grafana/grafana:10.2.0
     ports:
-      - "3000:3000"   # Grafana UI
+      - "33000:3000"   # Grafana UI
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin123
     volumes:
