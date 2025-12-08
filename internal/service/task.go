@@ -120,6 +120,18 @@ func (s *taskService) Get(ctx context.Context, id string) (*model.Task, error) {
 		return nil, errz.NewPrettyError(http.StatusInternalServerError, "internal_server_error", "failed to get entity", err)
 	}
 
+	// Authorization check: verify user owns the task
+	if userId := ctx.Value("context_key_user_id"); userId != nil {
+		if userIdStr, ok := userId.(string); ok && entity.CreatedBy != userIdStr {
+			s.telemetry.Increment(ctx, "task_get_total",
+				attribute.String("status", "forbidden"))
+			s.telemetry.RecordDuration(ctx, "task_get_duration_seconds",
+				start,
+				attribute.String("status", "forbidden"))
+			return nil, errz.NewPrettyError(http.StatusForbidden, "forbidden", "you don't have permission to access this task", nil)
+		}
+	}
+
 	// Record success
 	s.telemetry.Increment(ctx, "task_get_total",
 		attribute.String("status", "success"))
@@ -204,6 +216,37 @@ func (s *taskService) Update(ctx context.Context, id string, entity map[string]a
 		attribute.String("task.id", id))
 	defer span.End()
 
+	// Authorization check: verify user owns the task before updating
+	if userId := ctx.Value("context_key_user_id"); userId != nil {
+		existingTask, err := s.q.WithContext(ctx).Task.Where(s.q.Task.ID.Eq(id)).First()
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				s.telemetry.Increment(ctx, "task_update_total",
+					attribute.String("status", "not_found"))
+				s.telemetry.RecordDuration(ctx, "task_update_duration_seconds",
+					start,
+					attribute.String("status", "not_found"))
+				return nil, errz.NewPrettyError(http.StatusNotFound, "not_found", "entity not found", err)
+			}
+			s.telemetry.Increment(ctx, "task_update_total",
+				attribute.String("status", "error"))
+			s.telemetry.RecordDuration(ctx, "task_update_duration_seconds",
+				start,
+				attribute.String("status", "error"))
+			s.telemetry.RecordError(ctx, err)
+			return nil, errz.NewPrettyError(http.StatusInternalServerError, "internal_server_error", "failed to check task ownership", err)
+		}
+		
+		if userIdStr, ok := userId.(string); ok && existingTask.CreatedBy != userIdStr {
+			s.telemetry.Increment(ctx, "task_update_total",
+				attribute.String("status", "forbidden"))
+			s.telemetry.RecordDuration(ctx, "task_update_duration_seconds",
+				start,
+				attribute.String("status", "forbidden"))
+			return nil, errz.NewPrettyError(http.StatusForbidden, "forbidden", "you don't have permission to update this task", nil)
+		}
+	}
+
 	_, err := s.q.WithContext(ctx).Task.Where(s.q.Task.ID.Eq(id)).Updates(entity)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -232,7 +275,7 @@ func (s *taskService) Update(ctx context.Context, id string, entity map[string]a
 		start,
 		attribute.String("status", "success"))
 
-	// Get the updated entity (this will have its own telemetry)
+	// Get the updated entity (this will have its own telemetry and authorization check)
 	return s.Get(ctx, id)
 }
 
@@ -245,6 +288,37 @@ func (s *taskService) Delete(ctx context.Context, id string) error {
 		attribute.String("operation", "delete"),
 		attribute.String("task.id", id))
 	defer span.End()
+
+	// Authorization check: verify user owns the task before deleting
+	if userId := ctx.Value("context_key_user_id"); userId != nil {
+		existingTask, err := s.q.WithContext(ctx).Task.Where(s.q.Task.ID.Eq(id)).First()
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				s.telemetry.Increment(ctx, "task_delete_total",
+					attribute.String("status", "not_found"))
+				s.telemetry.RecordDuration(ctx, "task_delete_duration_seconds",
+					start,
+					attribute.String("status", "not_found"))
+				return errz.NewPrettyError(http.StatusNotFound, "not_found", "entity not found", err)
+			}
+			s.telemetry.Increment(ctx, "task_delete_total",
+				attribute.String("status", "error"))
+			s.telemetry.RecordDuration(ctx, "task_delete_duration_seconds",
+				start,
+				attribute.String("status", "error"))
+			s.telemetry.RecordError(ctx, err)
+			return errors.Wrap(err, "failed to check task ownership")
+		}
+		
+		if userIdStr, ok := userId.(string); ok && existingTask.CreatedBy != userIdStr {
+			s.telemetry.Increment(ctx, "task_delete_total",
+				attribute.String("status", "forbidden"))
+			s.telemetry.RecordDuration(ctx, "task_delete_duration_seconds",
+				start,
+				attribute.String("status", "forbidden"))
+			return errz.NewPrettyError(http.StatusForbidden, "forbidden", "you don't have permission to delete this task", nil)
+		}
+	}
 
 	_, err := s.q.WithContext(ctx).Task.Where(s.q.Task.ID.Eq(id)).Delete()
 	if err != nil {

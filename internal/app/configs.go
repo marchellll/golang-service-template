@@ -35,6 +35,28 @@ func NewConfig(getenv func(string) string) common.Config {
 	metricsEnabled := getenv("TELEMETRY_METRICS_ENABLED") == "true"
 	tracingEnabled := getenv("TELEMETRY_TRACING_ENABLED") == "true"
 
+	// Parse database SSL mode with default
+	dbSslMode := getenv("DB_SSLMODE")
+	if dbSslMode == "" {
+		dbSslMode = "require" // Default to secure
+	}
+
+	// Get JWT configuration
+	jwtSecret := getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Panic().Msg("JWT_SECRET environment variable is required")
+	}
+
+	jwtIssuer := getenv("JWT_ISSUER")
+	if jwtIssuer == "" {
+		log.Panic().Msg("JWT_ISSUER environment variable is required")
+	}
+
+	jwtAudience := getenv("JWT_AUDIENCE")
+	if jwtAudience == "" {
+		log.Panic().Msg("JWT_AUDIENCE environment variable is required")
+	}
+
 	_config := common.Config{
 		ServiceName:               getenv("SERVICE_NAME"),
 		Host:                      getenv("HOST"),
@@ -48,6 +70,7 @@ func NewConfig(getenv func(string) string) common.Config {
 			DBName:   getenv("DB_DBNAME"),
 			Username: getenv("DB_USERNAME"),
 			Password: getenv("DB_PASSWORD"),
+			SslMode:  dbSslMode,
 		},
 		RedisConfig: common.RedisConfig{
 			Address: getenv("REDIS_ADDRESS"),
@@ -61,6 +84,12 @@ func NewConfig(getenv func(string) string) common.Config {
 			MetricsEnabled: metricsEnabled,
 			TracingEnabled: tracingEnabled,
 		},
+		JWTConfig: common.JWTConfig{
+			Secret:   jwtSecret,
+			Issuer:   jwtIssuer,
+			Audience: jwtAudience,
+		},
+		AllowedOrigins: getenv("ALLOWED_ORIGINS"), // Comma-separated list
 	}
 
 	err := validate.Struct(_config)

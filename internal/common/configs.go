@@ -8,6 +8,8 @@ type Config struct {
 	DbConfig                  `validate:"required"`
 	RedisConfig               `validate:"required"`
 	TelemetryConfig           `validate:"required"`
+	JWTConfig                 `validate:"required"`
+	AllowedOrigins            string `validate:""` // Comma-separated list of allowed CORS origins
 }
 
 type TelemetryConfig struct {
@@ -32,4 +34,11 @@ type DbConfig struct {
 
 	Username string `validate:"required"`
 	Password string `validate:"required"`
+	SslMode  string `validate:""` // Optional, defaults to "require" if not set
+}
+
+type JWTConfig struct {
+	Secret   string `validate:"required"`
+	Issuer   string `validate:"required"`
+	Audience string `validate:"required"`
 }

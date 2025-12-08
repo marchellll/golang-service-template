@@ -15,17 +15,21 @@ import (
 // this middleware validates JWT tokens
 // no user validation is done here
 func ValidateJWTMiddleware(config common.Config, logger zerolog.Logger) echo.MiddlewareFunc {
+	if config.JWTConfig.Secret == "" {
+		logger.Fatal().Msg("JWT_SECRET is required but not configured")
+	}
+
 	keyFunc := func(ctx context.Context) (interface{}, error) {
 		// Our token must be signed using this data.
-		return []byte("secret"), nil // TODO: replace with actual secret from config
+		return []byte(config.JWTConfig.Secret), nil
 	}
 
 	// Set up the validator.
 	jwtValidator, err := validator.New(
 		keyFunc,
 		validator.HS256,
-		"http://example.com/", // TODO: replace with actual issuer URL from config
-		[]string{"audience"},  // TODO: replace with actual audience
+		config.JWTConfig.Issuer,
+		[]string{config.JWTConfig.Audience},
 	)
 
 	if err != nil {

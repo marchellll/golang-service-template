@@ -35,9 +35,13 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 
 		dialector = mysql.Open(dbConfig.FormatDSN())
 	case "postgres":
+		sslmode := config.DbConfig.SslMode
+		if sslmode == "" {
+			sslmode = "require" // Default to secure
+		}
 		dsn := fmt.Sprintf(
-			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-			config.DbConfig.Host, config.DbConfig.Port, config.DbConfig.Username, config.DbConfig.Password, config.DbConfig.DBName,
+			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+			config.DbConfig.Host, config.DbConfig.Port, config.DbConfig.Username, config.DbConfig.Password, config.DbConfig.DBName, sslmode,
 		)
 
 		dialector = postgres.Open(dsn)

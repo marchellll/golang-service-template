@@ -34,11 +34,13 @@ func addSocketIoRoutes(
 	c.SetMaxHttpBufferSize(1000000)
 	c.SetConnectTimeout(1000 * time.Millisecond)
 
-	// Enables CORS so any origin is allowed, and credentials (cookies, auth headers) can be sent.
-
+	// Configure CORS securely for Socket.IO
+	// Note: Cannot use wildcard "*" with credentials: true
+	// This should be configured from environment variable in production
+	socketIOOrigin := "*" // Default for development, should be set from config in production
 	c.SetCors(&types.Cors{
-		Origin:      "*",
-		Credentials: true,
+		Origin:      socketIOOrigin,
+		Credentials: socketIOOrigin != "*", // Only allow credentials if not using wildcard
 	})
 
 	//Creates a new Socket.IO server instance using the default HTTP handler options.
