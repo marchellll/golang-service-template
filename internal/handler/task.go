@@ -7,10 +7,6 @@ import (
 	"golang-service-template/internal/middleware"
 	"golang-service-template/internal/service"
 
-	"github.com/go-playground/locales/en"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
-	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/samber/do"
 
 	"github.com/labstack/echo/v4"
@@ -31,14 +27,6 @@ type taskController struct {
 
 // Create implements TaskController.
 func (tc *taskController) Create() echo.HandlerFunc {
-	// TODO: validator instance & translation creation can be moved to middleware
-	validate := validator.New()
-
-	english := en.New()
-	uni := ut.New(english, english)
-	trans, _ := uni.GetTranslator("en") // `en` should be from request header
-	_ = en_translations.RegisterDefaultTranslations(validate, trans)
-
 	type task struct {
 		Description string `json:"description" validate:"required"`
 	}
@@ -46,16 +34,8 @@ func (tc *taskController) Create() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		t := task{}
 
-		if err := c.Bind(&t); err != nil {
-			// TODO: this specific type in middleware
-			// to show 400 for bind error
-			return err
-		}
-
-		err := validate.Struct(t)
-		if err != nil {
-			// TODO: this specific type in middleware
-			// to show 400 for validation errors
+		// Use middleware's validator helper function for validation
+		if err := middleware.ValidateRequest(c, &t); err != nil {
 			return err
 		}
 
@@ -121,10 +101,14 @@ func (t *taskController) FindByUserId() echo.HandlerFunc {
 
 // GetTask implements TaskController.
 func (tc *taskController) GetById() echo.HandlerFunc {
-	validate := validator.New()
-
 	return func(c echo.Context) error {
 		id := c.Param("id")
+
+		// Get validator from middleware
+		validate := middleware.GetValidator(c)
+		if validate == nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Validator not configured")
+		}
 
 		err := validate.Var(id, "required,uuid")
 		if err != nil {
@@ -147,21 +131,18 @@ func (tc *taskController) GetById() echo.HandlerFunc {
 
 // Update implements TaskController.
 func (tc *taskController) Update() echo.HandlerFunc {
-
-	// TODO: validator instance & translation creation can be moved to middleware
-	validate := validator.New()
-
-	english := en.New()
-	uni := ut.New(english, english)
-	trans, _ := uni.GetTranslator("en") // `en` should be from request header
-	_ = en_translations.RegisterDefaultTranslations(validate, trans)
-
 	type task struct {
 		Description string `json:"description" validate:"required"`
 	}
 
 	return func(c echo.Context) error {
 		id := c.Param("id")
+
+		// Get validator from middleware
+		validate := middleware.GetValidator(c)
+		if validate == nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Validator not configured")
+		}
 
 		err := validate.Var(id, "required,uuid")
 		if err != nil {
@@ -170,16 +151,8 @@ func (tc *taskController) Update() echo.HandlerFunc {
 
 		t := task{}
 
-		if err := c.Bind(&t); err != nil {
-			// TODO: this specific type in middleware
-			// to show 400 for bind error
-			return err
-		}
-
-		err = validate.Struct(t)
-		if err != nil {
-			// TODO: this specific type in middleware
-			// to show 400 for validation errors
+		// Use middleware's validator helper function for validation
+		if err := middleware.ValidateRequest(c, &t); err != nil {
 			return err
 		}
 
@@ -201,10 +174,14 @@ func (tc *taskController) Update() echo.HandlerFunc {
 
 // Delete implements TaskController.
 func (t *taskController) Delete() echo.HandlerFunc {
-	validate := validator.New()
-
 	return func(c echo.Context) error {
 		id := c.Param("id")
+
+		// Get validator from middleware
+		validate := middleware.GetValidator(c)
+		if validate == nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Validator not configured")
+		}
 
 		err := validate.Var(id, "required,uuid")
 		if err != nil {

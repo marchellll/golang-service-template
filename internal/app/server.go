@@ -19,6 +19,7 @@ func RunNewServer(
 	e := echo.New()
 
 	addRoutes(e, injector)
+	addSocketIoRoutes(e, injector)
 
 	logger.Info().Str("port", config.Port).Msg("starting server")
 

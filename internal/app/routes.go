@@ -7,6 +7,7 @@ import (
 	"golang-service-template/internal/errz"
 	"golang-service-template/internal/handler"
 	"golang-service-template/internal/middleware"
+	"golang-service-template/internal/telemetry"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -22,14 +23,18 @@ func addRoutes(
 	logger := do.MustInvoke[zerolog.Logger](injector)
 
 	// global middlewares
-	e.Use(echo_middleware.Recover())
-	e.Use(errz.ErrzMiddleware())
-	e.Use(echo_middleware.CORS())
-	e.Use(middleware.LoggerMiddleware(logger))
+	e.Use(echo_middleware.Recover())                // First - handle panics
+	e.Use(echo_middleware.CORS())                   // Second - handle CORS early for preflight requests
+	e.Use(middleware.RequestIDMiddleware())         // Third - generate request ID for tracing
+	e.Use(middleware.TelemetryMiddleware(injector)) // Fourth - track all requests (including failed ones)
+	e.Use(middleware.LoggerMiddleware(logger))      // Fifth - logger should capture request ID and telemetry context
+	e.Use(errz.ErrorRendererMiddleware())           // Sixth - handle error rendering
+	e.Use(middleware.ValidatorMiddleware())         // Seventh - set up request validation
 
 	// routes
 	addHealthzRoutes(injector, e)
 	addTaskRoutes(injector, e)
+	addMetricsRoutes(injector, e)
 
 	// root route
 	e.Any("/", echo.WrapHandler(http.NotFoundHandler()))
@@ -67,4 +72,11 @@ func addTaskRoutes(injector *do.Injector, e *echo.Echo) {
 
 	securedTaskGroup.GET("", do.MustInvoke[handler.TaskController](injector).FindByUserId())
 
+}
+
+func addMetricsRoutes(injector *do.Injector, e *echo.Echo) {
+	// Get telemetry from dependency injection (optional, may not be available)
+	if tel, err := do.Invoke[*telemetry.Telemetry](injector); err == nil && tel != nil {
+		e.GET("/metrics", echo.WrapHandler(tel.GetMetricsHandler()))
+	}
 }

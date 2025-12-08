@@ -6,6 +6,7 @@ import (
 
 	mysql_drv "github.com/go-sql-driver/mysql"
 	"github.com/samber/do"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -21,7 +22,8 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 
 	var dialector gorm.Dialector
 
-	if config.DbConfig.Dialect == "mysql" {
+	switch config.DbConfig.Dialect {
+	case "mysql":
 		dbConfig := mysql_drv.NewConfig()
 		dbConfig.Addr = config.DbConfig.Host + ":" + config.DbConfig.Port
 		dbConfig.DBName = config.DbConfig.DBName
@@ -32,14 +34,16 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 		dbConfig.ParseTime = true
 
 		dialector = mysql.Open(dbConfig.FormatDSN())
-	}
-	if config.DbConfig.Dialect == "postgres" {
+	case "postgres":
 		dsn := fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			config.DbConfig.Host, config.DbConfig.Port, config.DbConfig.Username, config.DbConfig.Password, config.DbConfig.DBName,
 		)
 
 		dialector = postgres.Open(dsn)
+	default:
+		logger.Fatal().Str("dialect", config.DbConfig.Dialect).Msg("unsupported database dialect")
+		return nil, fmt.Errorf("unsupported database dialect: %s", config.DbConfig.Dialect)
 	}
 
 	gormDB, err := gorm.Open(dialector, &gorm.Config{
@@ -49,6 +53,13 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("failed to connect to DB")
 	}
+
+	// Add OpenTelemetry instrumentation for database tracing
+	if err := gormDB.Use(otelgorm.NewPlugin()); err != nil {
+		logger.Fatal().Err(err).Msg("failed to add GORM OpenTelemetry plugin")
+	}
+
+	logger.Info().Msg("Database OpenTelemetry instrumentation enabled")
 
 	return gormDB, nil
 }

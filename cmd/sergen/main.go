@@ -88,12 +88,9 @@ import (
 	"net/http"
 
 	"{{ .ModuleName }}/internal/dao/model"
+	"{{ .ModuleName }}/internal/middleware"
 	"{{ .ModuleName }}/internal/service"
 
-	"github.com/go-playground/locales/en"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
-	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/samber/do"
 
 	"github.com/labstack/echo/v4"
@@ -113,14 +110,6 @@ type {{ .EntityNameLow }}Controller struct {
 
 // Create implements {{ .EntityName }}Controller.
 func (tc *{{ .EntityNameLow }}Controller) Create() echo.HandlerFunc {
-	// TODO: validator instance & translation creation can be moved to middleware
-	validate := validator.New()
-
-	english := en.New()
-	uni := ut.New(english, english)
-	trans, _ := uni.GetTranslator("en") // 'en' should be from request header
-	_ = en_translations.RegisterDefaultTranslations(validate, trans)
-
 	type {{ .EntityNameLow }} struct {
 		Description string ` + "`" + `json:"description" validate:"required"` + "`" + `
 	}
@@ -128,16 +117,8 @@ func (tc *{{ .EntityNameLow }}Controller) Create() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		t := {{ .EntityNameLow }}{}
 
-		if err := c.Bind(&t); err != nil {
-			// TODO: this specific type in middleware
-			// to show 400 for bind error
-			return err
-		}
-
-		err := validate.Struct(t)
-		if err != nil {
-			// TODO: this specific type in middleware
-			// to show 400 for validation errors
+		// Use middleware's validator helper function for validation
+		if err := middleware.ValidateRequest(c, &t); err != nil {
 			return err
 		}
 
@@ -179,10 +160,14 @@ func (t *{{ .EntityNameLow }}Controller) Find() echo.HandlerFunc {
 
 // Get{{ .EntityName }} implements {{ .EntityName }}Controller.
 func (tc *{{ .EntityNameLow }}Controller) GetById() echo.HandlerFunc {
-	validate := validator.New()
-
 	return func(c echo.Context) error {
 		id := c.Param("id")
+
+		// Get validator from middleware
+		validate := middleware.GetValidator(c)
+		if validate == nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Validator not configured")
+		}
 
 		err := validate.Var(id, "required,uuid")
 		if err != nil {
@@ -205,21 +190,18 @@ func (tc *{{ .EntityNameLow }}Controller) GetById() echo.HandlerFunc {
 
 // Update implements {{ .EntityName }}Controller.
 func (tc *{{ .EntityNameLow }}Controller) Update() echo.HandlerFunc {
-
-	// TODO: validator instance & translation creation can be moved to middleware
-	validate := validator.New()
-
-	english := en.New()
-	uni := ut.New(english, english)
-	trans, _ := uni.GetTranslator("en") // 'en' should be from request header
-	_ = en_translations.RegisterDefaultTranslations(validate, trans)
-
 	type {{ .EntityNameLow }} struct {
 		Description string ` + "`" + `json:"description" validate:"required"` + "`" + `
 	}
 
 	return func(c echo.Context) error {
 		id := c.Param("id")
+
+		// Get validator from middleware
+		validate := middleware.GetValidator(c)
+		if validate == nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Validator not configured")
+		}
 
 		err := validate.Var(id, "required,uuid")
 		if err != nil {
@@ -228,16 +210,8 @@ func (tc *{{ .EntityNameLow }}Controller) Update() echo.HandlerFunc {
 
 		t := {{ .EntityNameLow }}{}
 
-		if err := c.Bind(&t); err != nil {
-			// TODO: this specific type in middleware
-			// to show 400 for bind error
-			return err
-		}
-
-		err = validate.Struct(t)
-		if err != nil {
-			// TODO: this specific type in middleware
-			// to show 400 for validation errors
+		// Use middleware's validator helper function for validation
+		if err := middleware.ValidateRequest(c, &t); err != nil {
 			return err
 		}
 
@@ -259,10 +233,14 @@ func (tc *{{ .EntityNameLow }}Controller) Update() echo.HandlerFunc {
 
 // Delete implements {{ .EntityName }}Controller.
 func (t *{{ .EntityNameLow }}Controller) Delete() echo.HandlerFunc {
-	validate := validator.New()
-
 	return func(c echo.Context) error {
 		id := c.Param("id")
+
+		// Get validator from middleware
+		validate := middleware.GetValidator(c)
+		if validate == nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Validator not configured")
+		}
 
 		err := validate.Var(id, "required,uuid")
 		if err != nil {

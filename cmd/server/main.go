@@ -37,10 +37,12 @@ func run(
 	)
 
 	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// Create shutdown context with timeout, but derive from a fresh background context
+	// since the original ctx is already cancelled (ctx.Done() was triggered)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := shutdownFn(ctx); err != nil {
+	if err := shutdownFn(shutdownCtx); err != nil {
 		logger.Err(err).Msg("failed to shutdown server gracefully")
 	}
 

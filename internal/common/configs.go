@@ -1,10 +1,23 @@
 package common
 
 type Config struct {
-	Host        string
-	Port        string `validate:"required"`
-	DbConfig    `validate:"required"`
-	RedisConfig `validate:"required"`
+	ServiceName               string `validate:"required"`
+	Host                      string
+	Port                      string `validate:"required"`
+	HealthcheckTimeoutSeconds int    `validate:"min=1"`
+	DbConfig                  `validate:"required"`
+	RedisConfig               `validate:"required"`
+	TelemetryConfig           `validate:"required"`
+}
+
+type TelemetryConfig struct {
+	Enabled        bool   `validate:""`
+	OtelEndpoint   string `validate:""`
+	ServiceName    string `validate:""`
+	ServiceVersion string `validate:""`
+	Environment    string `validate:""`
+	MetricsEnabled bool   `validate:""`
+	TracingEnabled bool   `validate:""`
 }
 
 type RedisConfig struct {

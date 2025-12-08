@@ -43,6 +43,9 @@ func NewInjector(
 	// configs
 	do.ProvideValue(injector, NewConfig(getenv))
 
+	// telemetry
+	do.Provide(injector, NewTelemetry)
+
 	do.Provide(injector, ConnectDB)
 	do.Provide(injector, ConnectRedis)
 
