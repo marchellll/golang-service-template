@@ -14,9 +14,9 @@ func ConnectRedis(i *do.Injector) (*redis.Client, error) {
 	config := do.MustInvoke[common.Config](i)
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     config.RedisConfig.Address, // TODO
-		Password: "",                         // no password set
-		DB:       0,                          // use default DB
+		Addr:     config.Address, // TODO
+		Password: "",             // no password set
+		DB:       0,              // use default DB
 	})
 
 	status := rdb.Ping(context.Background())

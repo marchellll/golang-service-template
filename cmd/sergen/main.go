@@ -37,28 +37,44 @@ func main() {
 
 	serviceFile, err := os.Create("internal/service/" + strings.ToLower(data.EntityName) + ".go")
 	die(err)
-	defer serviceFile.Close()
+	defer func() {
+		if err := serviceFile.Close(); err != nil {
+			log.Printf("error closing service file: %v", err)
+		}
+	}()
 
 	err = serviceTemplate.Execute(serviceFile, data)
 	die(err)
 
 	handlerFile, err := os.Create("internal/handler/" + strings.ToLower(data.EntityName) + ".go")
 	die(err)
-	defer handlerFile.Close()
+	defer func() {
+		if err := handlerFile.Close(); err != nil {
+			log.Printf("error closing handler file: %v", err)
+		}
+	}()
 
 	err = controllerTemplate.Execute(handlerFile, data)
 	die(err)
 
 	routesFile, err := os.OpenFile("internal/app/routes.go", os.O_APPEND|os.O_WRONLY, 0644)
 	die(err)
-	defer routesFile.Close()
+	defer func() {
+		if err := routesFile.Close(); err != nil {
+			log.Printf("error closing routes file: %v", err)
+		}
+	}()
 
 	err = routeTemplate.Execute(routesFile, data)
 	die(err)
 
 	diFile, err := os.OpenFile("internal/app/di.go", os.O_APPEND|os.O_WRONLY, 0644)
 	die(err)
-	defer routesFile.Close()
+	defer func() {
+		if err := diFile.Close(); err != nil {
+			log.Printf("error closing di file: %v", err)
+		}
+	}()
 
 	err = diTemplate.Execute(diFile, data)
 	die(err)

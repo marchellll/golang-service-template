@@ -22,32 +22,32 @@ func ConnectDB(i *do.Injector) (*gorm.DB, error) {
 
 	var dialector gorm.Dialector
 
-	switch config.DbConfig.Dialect {
+	switch config.Dialect {
 	case "mysql":
 		dbConfig := mysql_drv.NewConfig()
 		dbConfig.Addr = config.DbConfig.Host + ":" + config.DbConfig.Port
-		dbConfig.DBName = config.DbConfig.DBName
-		dbConfig.User = config.DbConfig.Username
-		dbConfig.Passwd = config.DbConfig.Password
+		dbConfig.DBName = config.DBName
+		dbConfig.User = config.Username
+		dbConfig.Passwd = config.Password
 		dbConfig.Net = "tcp"
 		// https://stackoverflow.com/questions/29341590/how-to-parse-time-from-database/29343013#29343013
 		dbConfig.ParseTime = true
 
 		dialector = mysql.Open(dbConfig.FormatDSN())
 	case "postgres":
-		sslmode := config.DbConfig.SslMode
+		sslmode := config.SslMode
 		if sslmode == "" {
 			sslmode = "require" // Default to secure
 		}
 		dsn := fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-			config.DbConfig.Host, config.DbConfig.Port, config.DbConfig.Username, config.DbConfig.Password, config.DbConfig.DBName, sslmode,
+			config.DbConfig.Host, config.DbConfig.Port, config.Username, config.Password, config.DBName, sslmode,
 		)
 
 		dialector = postgres.Open(dsn)
 	default:
-		logger.Fatal().Str("dialect", config.DbConfig.Dialect).Msg("unsupported database dialect")
-		return nil, fmt.Errorf("unsupported database dialect: %s", config.DbConfig.Dialect)
+		logger.Fatal().Str("dialect", config.Dialect).Msg("unsupported database dialect")
+		return nil, fmt.Errorf("unsupported database dialect: %s", config.Dialect)
 	}
 
 	gormDB, err := gorm.Open(dialector, &gorm.Config{
