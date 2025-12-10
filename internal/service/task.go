@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"golang-service-template/internal/common"
 	"golang-service-template/internal/dao/model"
 	"golang-service-template/internal/dao/query"
 	"golang-service-template/internal/errz"
 	"golang-service-template/internal/telemetry"
+	"golang-service-template/internal/temporal/workflow"
 	"net/http"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/do"
 	"go.opentelemetry.io/otel/attribute"
+	"go.temporal.io/sdk/client"
 	"gorm.io/gorm"
 
 	"github.com/google/uuid"
@@ -28,21 +31,27 @@ type TaskService interface {
 }
 
 type taskService struct {
-	db        *gorm.DB
-	q         *query.Query
-	redis     *redis.Client
-	telemetry *telemetry.Telemetry
+	db            *gorm.DB
+	q             *query.Query
+	redis         *redis.Client
+	telemetry     *telemetry.Telemetry
+	temporalClient client.Client
+	config         common.Config
 }
 
 func NewTaskService(i *do.Injector) (TaskService, error) {
 	db := do.MustInvoke[*gorm.DB](i)
-	tel, _ := do.Invoke[*telemetry.Telemetry](i) // Optional telemetry
+	tel := do.MustInvoke[*telemetry.Telemetry](i)
+	temporalClient := do.MustInvoke[client.Client](i) 
+	config := do.MustInvoke[common.Config](i)
 
 	return &taskService{
-		db:        db,
-		q:         query.Use(db),
-		redis:     do.MustInvoke[*redis.Client](i),
-		telemetry: tel,
+		db:            db,
+		q:             query.Use(db),
+		redis:         do.MustInvoke[*redis.Client](i),
+		telemetry:     tel,
+		temporalClient: temporalClient,
+		config:         config,
 	}, nil
 }
 
@@ -85,6 +94,25 @@ func (s *taskService) Create(ctx context.Context, entity model.Task) (*model.Tas
 
 	// Add task ID to span now that we have it
 	span.SetAttributes(attribute.String("task.id", entityp.ID))
+
+	// Trigger Temporal workflow for task notification (fire-and-forget)
+	if s.temporalClient != nil {
+		taskQueue := s.config.TemporalConfig.TaskQueue
+		if taskQueue == "" {
+			taskQueue = "task-notifications"
+		}
+		go func() {
+			_, err := s.temporalClient.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+				TaskQueue: taskQueue,
+			}, workflow.TaskNotificationWorkflow, workflow.TaskNotificationInput{
+				TaskID:           entityp.ID,
+				NotificationType: "create",
+			})
+			if err != nil {
+				s.telemetry.RecordError(context.Background(), err)
+			}
+		}()
+	}
 
 	return entityp, nil
 }
@@ -236,7 +264,7 @@ func (s *taskService) Update(ctx context.Context, id string, entity map[string]a
 			s.telemetry.RecordError(ctx, err)
 			return nil, errz.NewPrettyError(http.StatusInternalServerError, "internal_server_error", "failed to check task ownership", err)
 		}
-		
+
 		if userIdStr, ok := userId.(string); ok && existingTask.CreatedBy != userIdStr {
 			s.telemetry.Increment(ctx, "task_update_total",
 				attribute.String("status", "forbidden"))
@@ -275,6 +303,25 @@ func (s *taskService) Update(ctx context.Context, id string, entity map[string]a
 		start,
 		attribute.String("status", "success"))
 
+	// Trigger Temporal workflow for task notification (fire-and-forget)
+	if s.temporalClient != nil {
+		taskQueue := s.config.TemporalConfig.TaskQueue
+		if taskQueue == "" {
+			taskQueue = "task-notifications"
+		}
+		go func() {
+			_, err := s.temporalClient.ExecuteWorkflow(context.Background(), client.StartWorkflowOptions{
+				TaskQueue: taskQueue,
+			}, workflow.TaskNotificationWorkflow, workflow.TaskNotificationInput{
+				TaskID:           id,
+				NotificationType: "update",
+			})
+			if err != nil {
+				s.telemetry.RecordError(context.Background(), err)
+			}
+		}()
+	}
+
 	// Get the updated entity (this will have its own telemetry and authorization check)
 	return s.Get(ctx, id)
 }
@@ -309,7 +356,7 @@ func (s *taskService) Delete(ctx context.Context, id string) error {
 			s.telemetry.RecordError(ctx, err)
 			return errors.Wrap(err, "failed to check task ownership")
 		}
-		
+
 		if userIdStr, ok := userId.(string); ok && existingTask.CreatedBy != userIdStr {
 			s.telemetry.Increment(ctx, "task_delete_total",
 				attribute.String("status", "forbidden"))

@@ -15,6 +15,24 @@ services:
       - mysql
       - postgres
 
+# Temporal Worker - Executes workflows and activities
+  temporal-worker:
+    profiles: [dev]
+    image: cosmtrek/air:v1.62.0
+    working_dir: /build
+    env_file:
+      - .env
+    volumes:
+      - .:/build
+    entrypoint: ["/go/bin/air"]
+    command: ["-c", ".air.worker.toml"]
+    depends_on:
+      - temporal
+      - redis
+      - mysql
+      - postgres
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
   redis:
     image: "redis:alpine"
     ports:
@@ -50,6 +68,13 @@ services:
       POSTGRESQL_USERNAME: the_service_user
       POSTGRESQL_PASSWORD: the_service_password
       POSTGRESQL_DATABASE: the_service_database
+    command:
+      - /bin/bash
+      - -c
+      - |
+        mkdir -p /docker-entrypoint-initdb.d
+        echo "ALTER USER the_service_user CREATEDB;" > /docker-entrypoint-initdb.d/01-init-temporal.sql
+        exec /opt/bitnami/scripts/postgresql/entrypoint.sh /opt/bitnami/scripts/postgresql/run.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U the_service_user"]
       interval: 5s
@@ -113,6 +138,51 @@ services:
       - prometheus
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # TEMPORAL STACK
+  # ===========================================
+
+  # Temporal Server - Workflow Orchestration
+  temporal:
+    image: temporalio/auto-setup:1.24.0
+    ports:
+      - "7233:7233"  # Temporal gRPC
+      - "7234:7234"  # Temporal HTTP
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=the_service_user
+      - POSTGRES_PWD=the_service_password
+      - POSTGRES_SEEDS=postgres
+      - SKIP_SCHEMA_SETUP=false
+      - SKIP_DB_CREATE=false
+      - SKIP_DEFAULT_NAMESPACE_CREATION=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f temporal-server || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Temporal UI - Web UI for Temporal
+  temporal-ui:
+    image: temporalio/ui:2.29.0
+    ports:
+      - "8088:8080"  # Temporal UI
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    depends_on:
+      - temporal
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/"]
       interval: 30s
       timeout: 10s
       retries: 3

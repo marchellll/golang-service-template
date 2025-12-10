@@ -49,6 +49,9 @@ func NewInjector(
 	do.Provide(injector, ConnectDB)
 	do.Provide(injector, ConnectRedis)
 
+	// temporal client
+	do.Provide(injector, NewTemporalClient)
+
 	// services
 	do.Provide(injector, service.NewHealthService)
 	do.Provide(injector, service.NewTaskService)

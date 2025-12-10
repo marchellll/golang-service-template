@@ -10,6 +10,7 @@ type Config struct {
 	TelemetryConfig           `validate:"required"`
 	JWTConfig                 `validate:"required"`
 	AllowedOrigins            string `validate:""` // Comma-separated list of allowed CORS origins
+	TemporalConfig            `validate:""`
 }
 
 type TelemetryConfig struct {
@@ -41,4 +42,10 @@ type JWTConfig struct {
 	Secret   string `validate:"required"`
 	Issuer   string `validate:"required"`
 	Audience string `validate:"required"`
+}
+
+type TemporalConfig struct {
+	Address   string `validate:""`
+	Namespace string `validate:""`
+	TaskQueue string `validate:""`
 }

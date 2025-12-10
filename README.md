@@ -174,6 +174,45 @@ cd apitest
 bru run --env local
 ```
 
+## Temporal Workflow Orchestration
+
+This template includes a Temporal workflow integration for asynchronous task notifications. See [TEMPORAL.md](./TEMPORAL.md) for detailed documentation.
+
+### Quick Start
+
+```sh
+# Start Temporal server and UI
+docker compose --profile temporal up temporal temporal-ui
+
+# In a separate terminal, start the worker
+go run ./cmd/temporal_worker/main.go
+
+# Start the main server (in another terminal)
+go run ./cmd/server/main.go
+```
+
+The Temporal UI will be available at http://localhost:8088
+
+### Features
+
+- **Task Notification Workflow**: Automatically triggers when tasks are created/updated
+- **Parallel Activities**: Sends email, SMS, and push notifications concurrently
+- **Automatic Retries**: Built-in retry logic with exponential backoff
+- **Mock Implementations**: All notification channels are mock implementations (easily replaceable)
+- **Easy Removal**: All Temporal code is self-contained and easily removable
+
+### Configuration
+
+Add to your `.env` file:
+
+```env
+TEMPORAL_ADDRESS=localhost:7233
+TEMPORAL_NAMESPACE=default
+TEMPORAL_TASK_QUEUE=task-notifications
+```
+
+For more details, see [TEMPORAL.md](./TEMPORAL.md).
+
 ## Ref
 
 <https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/>
@@ -185,7 +224,6 @@ bru run --env local
 
 - terraform
 
-- temporal
 - queue
 - socket.io
 

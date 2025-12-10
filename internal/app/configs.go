@@ -90,6 +90,11 @@ func NewConfig(getenv func(string) string) common.Config {
 			Audience: jwtAudience,
 		},
 		AllowedOrigins: getenv("ALLOWED_ORIGINS"), // Comma-separated list
+		TemporalConfig: common.TemporalConfig{
+			Address:   getenv("TEMPORAL_ADDRESS"),
+			Namespace: getenv("TEMPORAL_NAMESPACE"),
+			TaskQueue: getenv("TEMPORAL_TASK_QUEUE"),
+		},
 	}
 
 	err := validate.Struct(_config)
