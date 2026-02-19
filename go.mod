@@ -22,6 +22,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0
 	go.temporal.io/sdk v1.38.0
+	go.temporal.io/sdk/contrib/opentelemetry v0.6.0
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gen v0.3.26
 	gorm.io/plugin/dbresolver v1.5.3
@@ -75,7 +76,6 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.37.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.0 // indirect
 	go.temporal.io/api v1.54.0 // indirect
-	go.temporal.io/sdk/contrib/opentelemetry v0.6.0 // indirect
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250715232539-7130f93afb79 // indirect
@@ -89,7 +89,7 @@ require (
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
+	filippo.io/edwards25519 v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cockroachdb/errors v1.11.3
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
