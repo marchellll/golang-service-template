@@ -5,11 +5,10 @@ import (
 	"golang-service-template/internal/common"
 	"net/http"
 
-	"github.com/auth0/go-jwt-middleware/v2/validator"
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v3"
+	"github.com/auth0/go-jwt-middleware/v3/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog"
-
-	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 )
 
 // this middleware validates JWT tokens
@@ -19,27 +18,28 @@ func ValidateJWTMiddleware(config common.Config, logger zerolog.Logger) echo.Mid
 		logger.Fatal().Msg("JWT_SECRET is required but not configured")
 	}
 
-	keyFunc := func(ctx context.Context) (interface{}, error) {
-		// Our token must be signed using this data.
+	keyFunc := func(ctx context.Context) (any, error) {
 		return []byte(config.Secret), nil
 	}
 
-	// Set up the validator.
 	jwtValidator, err := validator.New(
-		keyFunc,
-		validator.HS256,
-		config.Issuer,
-		[]string{config.Audience},
+		validator.WithKeyFunc(keyFunc),
+		validator.WithAlgorithm(validator.HS256),
+		validator.WithIssuer(config.Issuer),
+		validator.WithAudiences([]string{config.Audience}),
 	)
-
 	if err != nil {
 		logger.Fatal().Err(err).Msg("failed to create jwt validator")
 	}
 
-	// new middleware that checks the JWT token
-	middlewareStruct := jwtmiddleware.New(jwtValidator.ValidateToken)
+	jwtMW, err := jwtmiddleware.New(
+		jwtmiddleware.WithValidator(jwtValidator),
+	)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("failed to create jwt middleware")
+	}
 
-	middleware := echo.WrapMiddleware(middlewareStruct.CheckJWT)
+	middleware := echo.WrapMiddleware(jwtMW.CheckJWT)
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -54,13 +54,11 @@ const ContextKeyUserId = "context_key_user_id"
 // it must be used after ValidateJWTMiddleware
 func SetUserIdMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// Get the user ID from the JWT token.
-		claims, ok := c.Request().Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-		if !ok {
+		claims, err := jwtmiddleware.GetClaims[*validator.ValidatedClaims](c.Request().Context())
+		if err != nil {
 			return echo.NewHTTPError(http.StatusForbidden, "failed to get validated claims")
 		}
 
-		// Add the user ID to the echo context.
 		c.Set(ContextKeyUserId, claims.RegisteredClaims.Subject)
 
 		return next(c)
