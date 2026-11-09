@@ -58,7 +58,7 @@ services:
       retries: 6
 
   postgres:
-    image: bitnami/postgresql
+    image: soldevelo/postgresql
     restart: always
     volumes:
       - ./postgres_data:/var/lib/postgresql
